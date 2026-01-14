@@ -24,8 +24,8 @@
             --event-border: #ffeeba;
             
             /* 重點查核點 (Highlight) 樣式定義 */
-            /* 修正：改為黃底、藍字、藍框，不再使用紅色 */
-            --highlight-bg: #fffbd1; /* 柔和的鵝黃色 */
+            /* 修改處：將背景色改為亮黃色 */
+            --highlight-bg: #ffeb3b; /* 亮黃色 (Vibrant Yellow) */
             --highlight-border: #0056b3; /* 維持藍色邊框 */
             --highlight-text: #0056b3;   /* 維持藍色文字 */
         }
@@ -191,12 +191,12 @@
             transition: all 0.3s ease;
         }
 
-        /* 重點查核點樣式 (Highlight Style) - 修正為黃底 */
+        /* 重點查核點樣式 (Highlight Style) - 亮黃色背景 */
         .highlight-style {
-            background-color: var(--highlight-bg) !important; /* 變為黃底 */
-            border-color: var(--highlight-border) !important; /* 維持藍框 */
-            color: var(--highlight-text) !important; /* 維持藍字 */
-            transform: scale(1.05); /* 稍微放大一點點增加權重感 */
+            background-color: var(--highlight-bg) !important; 
+            border-color: var(--highlight-border) !important; 
+            color: var(--highlight-text) !important; 
+            transform: scale(1.05);
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
@@ -223,7 +223,7 @@
         .col-block.left .l1-title { color: var(--header-left); }
         .col-block.right .l1-title { color: var(--header-right); }
 
-        /* 如果標題沒有合併，但又是 highlight，則在卡片標題套用類似效果 */
+        /* 如果標題沒有合併，但又是 highlight */
         .l1-title.highlight-text {
             background-color: var(--highlight-bg);
             color: var(--highlight-text) !important;
@@ -267,7 +267,6 @@
             .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px; border-radius: 10px;}
             .merged-title-container { justify-content: flex-start; }
             
-            /* 手機版 highlight 微調 */
             .highlight-style { transform: none; width: calc(100% - 35px); }
         }
     </style>
@@ -291,11 +290,11 @@
 
 <script>
     // 資料結構
-    // highlight: true = 啟用黃底藍框樣式
+    // highlight: true = 啟用亮黃底藍框樣式
     const timelineData = [
         {
             date: "2026.01.15",
-            highlight: false, // 修正：取消 highlight
+            highlight: false,
             cloud: { l1: "住院流程分析", l2: "北榮中國醫功能拆解\n每週四媒合專家顧問" },
             hosp: null,
             event: "2月中確認模組列表與年度開發規劃"
@@ -330,14 +329,14 @@
         },
         {
             date: "2026.02.11",
-            highlight: false, // 修正：取消 highlight (住院模組確認)
+            highlight: false,
             cloud: { l1: "住院模組確認", l2: "列出今年明年開發規劃" },
             hosp: { l1: "住院模組確認", l2: "陸續安排主要使用者回饋" },
             event: null
         },
         {
             date: "2026.02.26",
-            highlight: true, // 保留 highlight (二階完成)
+            highlight: true, // 亮黃底
             cloud: { l1: "門診系統-二階完成", l2: "政府與特色模組除外" },
             hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋\n艾科完成VITA儀表頁面規劃" },
             event: null
@@ -351,7 +350,7 @@
         },
         {
             date: "2026.03.09",
-            highlight: true, // 保留 highlight (落地私有雲)
+            highlight: true, // 亮黃底
             cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦\n完成附醫測試資料匯入" },
             hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主，完成前校園診所及整體規劃保留紙本管道\n門診電腦相關設備採購" },
             event: null
@@ -365,7 +364,7 @@
         },
         {
             date: "2026.03.31",
-            highlight: false, // 修正：取消 highlight (艾科測試 & ERP POC)
+            highlight: false,
             cloud: { l1: "門診系統-艾科測試", l2: "完成VITA艾科模組測試" },
             hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認\n竹銘需確認收費細節" },
             event: null
@@ -378,27 +377,21 @@
         const row = document.createElement('div');
         row.className = 'timeline-row';
 
-        // 判斷合併
         const isMerged = (item.cloud && item.hosp && item.cloud.l1 === item.hosp.l1);
 
         let mergedTitleHtml = '';
         let leftContentHtml = '';
         let rightContentHtml = '';
 
-        // 處理重要事件
         let eventHtml = '';
         if (item.event) {
             eventHtml = `<div class="important-event-mini">${item.event}</div>`;
         }
 
-        // 處理 Highlight CSS Class
-        // highlight-style: 用於合併標題 (黃底藍框)
-        // highlight-text: 用於非合併標題
         const mergedClass = item.highlight ? 'highlight-style' : ''; 
         const cardTitleClass = item.highlight ? 'highlight-text' : '';
 
         if (isMerged) {
-            // 合併模式
             mergedTitleHtml = `
                 <div class="merged-title-container">
                     <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
@@ -413,7 +406,6 @@
                     <div class="l2-detail">${item.hosp.l2}</div>
                 </div>`;
         } else {
-            // 分開模式
             if (item.cloud) {
                 leftContentHtml = `
                     <div class="task-card">
@@ -435,7 +427,6 @@
             }
         }
 
-        // 組合 HTML
         row.innerHTML = `
             <div class="date-badge">${item.date}</div>
             ${eventHtml}
