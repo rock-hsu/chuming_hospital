@@ -6,47 +6,84 @@
     <title>竹銘醫院資訊系統時程規劃</title>
     <style>
         :root {
-            --primary-blue: #0056b3;     /* 竹銘/醫療穩重藍 */
-            --accent-cloud: #00a8cc;     /* 雲行科技感青色 */
-            --accent-hosp: #28a745;      /* 醫院委外綠色 */
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-            --timeline-line: #ddd;
+            /* 調整為更柔和的背景色，避免視覺疲勞 */
+            --bg-left: #f0f7ff;  /* 左側雲行淡藍 */
+            --bg-right: #f4fff6; /* 右側竹銘淡綠 */
+            --header-left: #0056b3;
+            --header-right: #28a745;
+            
+            --timeline-line: #cbd5e0;
             --card-bg: #ffffff;
-            --important-bg: #fff3cd;
-            --important-text: #856404;
+            --text-main: #333;
+            --text-sub: #666;
+            
+            --event-bg: #fffbf0;
+            --event-border: #ffeeba;
+            --event-text: #856404;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             font-family: "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
+            color: var(--text-main);
+            line-height: 1.5;
             overflow-x: hidden;
+            background-color: #fff;
         }
 
-        /* Header Section */
-        header {
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cloud));
-            color: white;
-            text-align: center;
-            padding: 3rem 1rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        /* 1. 全域背景分割 (電腦版) */
+        .split-background {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
-        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        header p { font-size: 1.1rem; opacity: 0.9; }
+
+        /* Main Header */
+        header.main-title {
+            background: #fff;
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            z-index: 10;
+        }
+        header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
+        header.main-title p { color: #666; }
+
+        /* 2. 固定標題列 (Sticky Column Headers) */
+        .sticky-col-headers {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            width: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .header-col {
+            width: 50%;
+            padding: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-col.left { background-color: var(--header-left); }
+        .header-col.right { background-color: var(--header-right); }
 
         /* Timeline Container */
         .timeline-container {
             position: relative;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px 100px; /* Bottom padding for scroll space */
         }
 
-        /* The Vertical Line */
+        /* 3. 中間的時間軸線 (The Vertical Line) */
         .timeline-container::after {
             content: '';
             position: absolute;
@@ -56,193 +93,165 @@
             bottom: 0;
             left: 50%;
             margin-left: -2px;
-            z-index: 1;
+            z-index: 0; /* 確保線在最底層 */
         }
 
-        /* Timeline Item Row */
-        .timeline-item {
+        /* Timeline Row Wrapper */
+        .timeline-row {
             position: relative;
             margin-bottom: 60px;
             width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            opacity: 0; /* Animation start state */
+            opacity: 0;
             transform: translateY(30px);
             transition: all 0.6s ease-out;
+            z-index: 1; /* 比線高 */
         }
-        
-        .timeline-item.visible {
+        .timeline-row.visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Date Bubble */
+        /* Date Badge */
         .date-badge {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary-blue);
+            width: 140px;
+            margin: 0 auto 20px auto;
+            background: #4a5568;
             color: white;
-            padding: 8px 16px;
+            padding: 6px 0;
+            text-align: center;
             border-radius: 20px;
             font-weight: bold;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            white-space: nowrap;
+            position: relative;
+            z-index: 5; /* 確保蓋過中線 */
+            box-shadow: 0 0 0 6px rgba(255,255,255,0.8); /* 白色光暈讓線看起來有斷開感 */
         }
 
-        /* Content Columns */
-        .content-wrapper {
-            width: 100%;
+        /* Content Grid */
+        .content-grid {
             display: flex;
             justify-content: space-between;
-            padding-top: 40px; /* Space for date */
+            align-items: flex-start;
+            position: relative;
+            flex-wrap: wrap;
         }
 
-        .col-left, .col-right {
-            width: 45%;
-            position: relative;
+        .col-block {
+            width: 46%; /* 留空間給中線 */
         }
         
-        /* Merged View Styles */
-        .merged-row .content-wrapper {
-            flex-direction: column;
-            align-items: center;
-        }
-        .merged-title {
-            background: var(--primary-blue);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-            z-index: 5;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-            max-width: 80%;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        .merged-details {
-            display: flex;
+        /* Merged Title Styles */
+        .merged-title-container {
             width: 100%;
-            justify-content: space-between;
-        }
-
-        /* Card Styles */
-        .task-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border-left: 5px solid #ccc;
-            transition: transform 0.3s;
             display: flex;
-            flex-direction: row; /* Level 1 left, Level 2 right */
-            gap: 15px;
-        }
-        .task-card:hover { transform: translateY(-3px); }
-
-        .cloud-task { border-left-color: var(--accent-cloud); }
-        .hosp-task { border-left-color: var(--accent-hosp); }
-
-        /* Inner Layout of Card (Level 1 vs Level 2) */
-        .level-1 {
-            flex: 0 0 35%;
-            font-weight: bold;
-            color: var(--primary-blue);
-            border-right: 1px solid #eee;
-            padding-right: 10px;
-            display: flex;
-            align-items: center;
-        }
-        .level-2 {
-            flex: 1;
-            font-size: 0.95rem;
-            color: #555;
-        }
-
-        /* Labels */
-        .side-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            display: block;
-            font-weight: bold;
-        }
-        .label-cloud { color: var(--accent-cloud); text-align: right; }
-        .label-hosp { color: var(--accent-hosp); text-align: left; }
-
-        /* Important Event Note */
-        .important-event {
-            margin-top: 15px;
-            background-color: var(--important-bg);
-            color: var(--important-text);
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            text-align: center;
-            border: 1px dashed var(--important-text);
-            width: 60%;
-            margin-left: auto;
-            margin-right: auto;
+            justify-content: center;
+            margin-bottom: 15px;
             position: relative;
             z-index: 2;
         }
-        .important-event::before {
-            content: '🔔 重要事件：';
+        .merged-title {
+            background: white;
+            border: 2px solid var(--header-left);
+            color: var(--header-left);
+            padding: 8px 25px;
+            border-radius: 50px;
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Task Cards */
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+
+        .l1-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .col-block.left .l1-title { color: var(--header-left); }
+        .col-block.right .l1-title { color: var(--header-right); }
+
+        .l2-detail {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            white-space: pre-line; /* 支援換行符號 */
         }
 
         /* Empty State */
-        .empty-slot { opacity: 0; pointer-events: none; }
+        .empty-space { height: 1px; }
 
-        /* Responsive Mobile Design */
+        /* 4. 重要事件 (Important Event) - 橫幅樣式 */
+        .event-banner {
+            width: 100%;
+            margin-top: 15px;
+            background-color: var(--event-bg);
+            border: 1px solid var(--event-border);
+            color: var(--event-text);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 2;
+        }
+        .event-banner strong { margin-right: 5px; }
+
+        /* RWD Mobile Design */
         @media screen and (max-width: 768px) {
+            .split-background { background: #f8f9fa; } /* 手機版移除左右分割色 */
+            
+            /* 手機版隱藏置頂左右標題，改為傳統流式佈局 */
+            .sticky-col-headers { display: none; }
+            
             .timeline-container::after { left: 20px; }
-            .date-badge { left: 20px; transform: none; padding: 6px 12px; font-size: 0.9rem;}
+            .date-badge { margin-left: 0; width: auto; display: inline-block; padding: 5px 15px; }
             
-            .content-wrapper {
-                flex-direction: column;
-                padding-left: 45px; /* Make space for line */
-                padding-top: 35px;
+            .content-grid { flex-direction: column; padding-left: 35px; }
+            .col-block { width: 100%; margin-bottom: 15px; }
+
+            /* 手機版需要顯示小標題來區分 */
+            .col-block.left::before {
+                content: '雲行自主與任務';
+                display: block; font-size: 0.8rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold;
             }
-
-            .col-left, .col-right { width: 100%; margin-bottom: 15px; }
+            .col-block.right::before {
+                content: '竹銘委外與協助';
+                display: block; font-size: 0.8rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
+            }
             
-            .label-cloud, .label-hosp { text-align: left; }
-            
-            .merged-row .content-wrapper { padding-left: 45px; align-items: flex-start; }
-            .merged-details { flex-direction: column; }
-            .merged-title { max-width: 100%; margin-left: 0; text-align: left; }
-
-            .task-card { flex-direction: column; gap: 5px; }
-            .level-1 { border-right: none; border-bottom: 1px solid #eee; padding-bottom: 5px; width: 100%; }
-            
-            .important-event { width: 100%; }
+            .merged-title { width: 100%; text-align: left; border-radius: 8px; margin-left: 35px; }
+            .merged-title-container { justify-content: flex-start; }
         }
     </style>
 </head>
 <body>
 
-<header>
+<div class="split-background"></div>
+
+<header class="main-title">
     <h1>竹銘醫院資訊系統時程規劃</h1>
     <p>2026 年度專案開發與導入進度表</p>
 </header>
+
+<div class="sticky-col-headers">
+    <div class="header-col left">雲行自主與任務</div>
+    <div class="header-col right">竹銘委外與協助</div>
+</div>
 
 <div class="timeline-container" id="timeline">
     </div>
 
 <script>
-    // 資料來源：根據您的 Word 檔案整理
-    // 結構說明：
-    // date: 日期
-    // cloud: { l1: "第一層標題", l2: "第二層細節", link: "可選連結", img: "可選圖片" }
-    // hosp: { l1: "第一層標題", l2: "第二層細節" }
-    // event: 重要事件提醒文字
-    
+    // 資料結構保持不變
     const timelineData = [
         {
             date: "2026.01.15",
@@ -258,7 +267,7 @@
         },
         {
             date: "2026.01.23",
-            // 測試合併功能：當 l1 相同時
+            // 合併測試：L1 標題相同
             cloud: { l1: "ERP五週六堂課", l2: "了解欄位與串接" },
             hosp: { l1: "ERP五週六堂課", l2: "了解流程與功能" },
             event: "釐清採購與合作範圍"
@@ -290,25 +299,25 @@
         {
             date: "2026.03.02",
             cloud: { l1: "雲行APP啟動規劃", l2: "兩週完成初版架構規劃" },
-            hosp: { l1: "雲行APP啟動規劃", l2: "客戶服務流程細節說明 (竹銘代表以室裝模擬圖說明特色)" },
+            hosp: { l1: "雲行APP啟動規劃", l2: "客戶服務流程細節說明\n(竹銘代表以室裝模擬圖說明特色)" },
             event: null
         },
         {
             date: "2026.03.09",
-            cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦<br>完成附醫測試資料匯入" },
-            hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試<br>APP搭配無紙化為主<br>門診電腦相關設備採購" },
+            cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦\n完成附醫測試資料匯入" },
+            hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主\n門診電腦相關設備採購" },
             event: null
         },
         {
             date: "2026.03.16",
             cloud: { l1: "門診系統-政府串連報告", l2: "列出門診串連政府服務清單與時程" },
-            hosp: { l1: "委外系統評選", l2: "公文系統評估<br>人事系統評估 (雲行人事模組串連討論)" },
+            hosp: { l1: "委外系統評選", l2: "公文系統評估\n人事系統評估 (雲行人事模組串連討論)" },
             event: "竹銘組織架構內外部應確立"
         },
         {
             date: "2026.03.31",
             cloud: { l1: "門診系統-艾科測試", l2: "完成VITA艾科模組測試" },
-            hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認<br>竹銘需確認收費細節" },
+            hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認\n竹銘需確認收費細節" },
             event: null
         }
     ];
@@ -317,83 +326,78 @@
 
     timelineData.forEach(item => {
         const row = document.createElement('div');
-        row.className = 'timeline-item';
+        row.className = 'timeline-row';
 
-        // 檢查是否需要合併 (L1 標題相同)
+        // 判斷是否合併標題 (當兩邊 L1 存在且相等)
         const isMerged = (item.cloud && item.hosp && item.cloud.l1 === item.hosp.l1);
 
+        let mergedTitleHtml = '';
+        let leftContentHtml = '';
+        let rightContentHtml = '';
+
         if (isMerged) {
-            row.classList.add('merged-row');
-            row.innerHTML = `
-                <div class="date-badge">${item.date}</div>
-                <div class="content-wrapper">
+            // 合併模式：標題抽出來置中
+            mergedTitleHtml = `
+                <div class="merged-title-container">
                     <div class="merged-title">${item.cloud.l1}</div>
-                    <div class="merged-details">
-                        <div class="col-left">
-                            <span class="side-label label-cloud">雲行自主與任務</span>
-                            <div class="task-card cloud-task">
-                                <div class="level-2">${item.cloud.l2}</div>
-                            </div>
-                        </div>
-                        <div class="col-right">
-                             <span class="side-label label-hosp">竹銘委外與協助</span>
-                            <div class="task-card hosp-task">
-                                <div class="level-2">${item.hosp.l2}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+                </div>`;
+            
+            // 內容區塊只放 L2
+            leftContentHtml = `
+                <div class="task-card">
+                    <div class="l2-detail">${item.cloud.l2}</div>
+                </div>`;
+            rightContentHtml = `
+                <div class="task-card">
+                    <div class="l2-detail">${item.hosp.l2}</div>
+                </div>`;
         } else {
-            // 一般分開顯示模式
-            // 左側卡片 HTML
-            let leftHtml = '';
+            // 一般模式：各自顯示 L1 + L2
             if (item.cloud) {
-                leftHtml = `
-                    <span class="side-label label-cloud">雲行自主與任務</span>
-                    <div class="task-card cloud-task">
-                        <div class="level-1">${item.cloud.l1}</div>
-                        <div class="level-2">${item.cloud.l2}</div>
+                leftContentHtml = `
+                    <div class="task-card">
+                        <div class="l1-title">${item.cloud.l1}</div>
+                        <div class="l2-detail">${item.cloud.l2}</div>
                     </div>`;
             } else {
-                leftHtml = `<div class="empty-slot"></div>`;
+                leftContentHtml = `<div class="empty-space"></div>`;
             }
 
-            // 右側卡片 HTML
-            let rightHtml = '';
             if (item.hosp) {
-                rightHtml = `
-                    <span class="side-label label-hosp">竹銘委外與協助</span>
-                    <div class="task-card hosp-task">
-                        <div class="level-1">${item.hosp.l1}</div>
-                        <div class="level-2">${item.hosp.l2}</div>
+                rightContentHtml = `
+                    <div class="task-card">
+                        <div class="l1-title">${item.hosp.l1}</div>
+                        <div class="l2-detail">${item.hosp.l2}</div>
                     </div>`;
             } else {
-                rightHtml = `<div class="empty-slot"></div>`;
+                rightContentHtml = `<div class="empty-space"></div>`;
             }
-
-            row.innerHTML = `
-                <div class="date-badge">${item.date}</div>
-                <div class="content-wrapper">
-                    <div class="col-left">${leftHtml}</div>
-                    <div class="col-right">${rightHtml}</div>
-                </div>
-            `;
         }
 
-        // 插入重要事件 (如果有的話)
+        // 處理重要事件 (橫幅)
+        let eventHtml = '';
         if (item.event) {
-            const eventDiv = document.createElement('div');
-            eventDiv.className = 'important-event';
-            eventDiv.innerHTML = item.event;
-            // 插在 content-wrapper 之後，但在 timeline-item 內
-            row.appendChild(eventDiv); 
+            eventHtml = `
+                <div class="event-banner">
+                    <strong>🔔 重要事件：</strong> ${item.event}
+                </div>`;
         }
+
+        // 組合 HTML
+        row.innerHTML = `
+            <div class="date-badge">${item.date}</div>
+            ${mergedTitleHtml}
+            <div class="content-grid">
+                <div class="col-block left">${leftContentHtml}</div>
+                <div class="col-block right">${rightContentHtml}</div>
+                ${eventHtml}
+            </div>
+        `;
 
         container.appendChild(row);
     });
 
-    // 滾動出現動畫 (Intersection Observer)
+    // 滾動動畫偵測
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -402,7 +406,7 @@
         });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.timeline-item').forEach(item => {
+    document.querySelectorAll('.timeline-row').forEach(item => {
         observer.observe(item);
     });
 
