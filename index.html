@@ -7,25 +7,27 @@
     <style>
         :root {
             /* --- 色彩調整區 --- */
-            /* 加深背景色，提高白色卡片的對比度 */
             --bg-left: #cfe2ff;  /* 雲行：飽和度較高的淡藍 */
             --bg-right: #d1e7dd; /* 竹銘：飽和度較高的淡綠 */
             
-            --header-left: #0056b3;
-            --header-right: #155724; /* 配合深綠底色，字體改深一點的綠 */
+            --header-left: #0056b3; /* 竹銘藍 */
+            --header-right: #155724; 
             
-            --timeline-line: #aab2bd; /* 線條稍微加深一點以匹配深色背景 */
+            --timeline-line: #aab2bd;
             --card-bg: #ffffff;
             --text-main: #333;
-            --text-sub: #444; /* 內文稍微加深 */
+            --text-sub: #444;
             
-            /* 重要事件相關 */
-            --event-text: #b91c1c; 
-            --event-bg: transparent;
+            /* 重要事件小標籤 (日期下方) */
+            --event-text: #856404; 
+            --event-bg: #fff3cd;
+            --event-border: #ffeeba;
             
-            /* 重點查核點 (紅色標題) */
-            --highlight-bg: #dc3545;
-            --highlight-text: #ffffff;
+            /* 重點查核點 (Highlight) 樣式定義 */
+            /* 修正：改為黃底、藍字、藍框，不再使用紅色 */
+            --highlight-bg: #fffbd1; /* 柔和的鵝黃色 */
+            --highlight-border: #0056b3; /* 維持藍色邊框 */
+            --highlight-text: #0056b3;   /* 維持藍色文字 */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +40,7 @@
             background-color: #fff;
         }
 
-        /* 1. 全域背景分割 */
+        /* 背景分割 */
         .split-background {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -46,7 +48,7 @@
             background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
 
-        /* Main Header */
+        /* 標題區 */
         header.main-title {
             background: #fff;
             text-align: center;
@@ -59,7 +61,7 @@
         header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
         header.main-title p { color: #666; }
 
-        /* 2. 固定標題列 (Sticky) */
+        /* 固定欄位標題 */
         .sticky-col-headers {
             position: sticky;
             top: 0;
@@ -81,7 +83,7 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         .header-col.left { background-color: var(--header-left); }
-        .header-col.right { background-color: #28a745; } /* 標題列保持鮮豔綠色 */
+        .header-col.right { background-color: #28a745; }
         .header-col .icon { margin-right: 8px; font-size: 1.2rem; }
 
         /* Timeline Container */
@@ -92,7 +94,7 @@
             padding: 40px 20px 100px;
         }
 
-        /* 3. 中間的時間軸線 */
+        /* 中線 */
         .timeline-container::after {
             content: '';
             position: absolute;
@@ -105,7 +107,7 @@
             z-index: 0;
         }
 
-        /* Timeline Row Wrapper */
+        /* Timeline Row */
         .timeline-row {
             position: relative;
             margin-bottom: 50px;
@@ -123,7 +125,7 @@
             transform: translateY(0);
         }
 
-        /* Date Badge */
+        /* 日期膠囊 */
         .date-badge {
             width: 130px;
             background: #4a5568;
@@ -139,11 +141,11 @@
             font-size: 1rem;
         }
 
-        /* 4. 重要事件 (緊貼日期) */
+        /* 重要事件 (緊貼日期) */
         .important-event-mini {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
+            background-color: var(--event-bg);
+            color: var(--event-text);
+            border: 1px solid var(--event-border);
             padding: 4px 12px;
             border-radius: 4px;
             font-size: 0.9rem;
@@ -157,7 +159,7 @@
         }
         .important-event-mini::before { content: '🔔 '; }
 
-        /* Content Grid */
+        /* 內容區塊 */
         .content-grid {
             display: flex;
             justify-content: space-between;
@@ -167,11 +169,9 @@
             flex-wrap: wrap;
         }
 
-        .col-block {
-            width: 46%;
-        }
+        .col-block { width: 46%; }
         
-        /* Merged Title Styles */
+        /* 合併標題樣式 (Merged Title) */
         .merged-title-container {
             width: 100%;
             display: flex;
@@ -181,29 +181,31 @@
             z-index: 2;
         }
         .merged-title {
-            background: white;
-            border: 2px solid var(--header-left);
-            color: var(--header-left);
+            background: white; /* 預設白底 */
+            border: 2px solid var(--header-left); /* 預設藍框 */
+            color: var(--header-left); /* 預設藍字 */
             padding: 8px 25px;
             border-radius: 50px;
             font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
 
-        /* Highlight Style (紅色底色標題) */
-        .highlight-bg {
-            background-color: var(--highlight-bg) !important;
-            color: var(--highlight-text) !important;
-            border-color: var(--highlight-bg) !important;
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+        /* 重點查核點樣式 (Highlight Style) - 修正為黃底 */
+        .highlight-style {
+            background-color: var(--highlight-bg) !important; /* 變為黃底 */
+            border-color: var(--highlight-border) !important; /* 維持藍框 */
+            color: var(--highlight-text) !important; /* 維持藍字 */
+            transform: scale(1.05); /* 稍微放大一點點增加權重感 */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
-        /* Task Cards */
+        /* 任務卡片 */
         .task-card {
             background: var(--card-bg);
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 陰影加深，讓卡片在深色背景更立體 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin-bottom: 10px;
             border: 1px solid rgba(0,0,0,0.05);
         }
@@ -218,16 +220,16 @@
             width: 100%;
         }
         
-        /* 標題顏色：配合背景加深，標題文字保持對比 */
         .col-block.left .l1-title { color: var(--header-left); }
         .col-block.right .l1-title { color: var(--header-right); }
 
-        /* Highlight Text Style */
-        .col-block .l1-title.highlight-text {
+        /* 如果標題沒有合併，但又是 highlight，則在卡片標題套用類似效果 */
+        .l1-title.highlight-text {
             background-color: var(--highlight-bg);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
+            color: var(--highlight-text) !important;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 4px solid var(--highlight-border);
         }
 
         .l2-detail {
@@ -237,10 +239,9 @@
             line-height: 1.6;
         }
 
-        /* Empty State */
         .empty-space { height: 1px; }
 
-        /* RWD Mobile Design */
+        /* RWD Mobile */
         @media screen and (max-width: 768px) {
             .split-background { background: #f8f9fa; } 
             .sticky-col-headers { display: none; }
@@ -248,7 +249,7 @@
             .timeline-container::after { left: 20px; }
             .timeline-row { align-items: flex-start; }
             
-            .date-badge { margin-left: 0; margin-right: 0; display: inline-block; }
+            .date-badge { margin-left: 0; display: inline-block; }
             .important-event-mini { display: block; width: fit-content; margin-top: 5px; margin-left: 0; text-align: left;}
 
             .content-grid { flex-direction: column; padding-left: 35px; }
@@ -263,8 +264,11 @@
                 display: block; font-size: 0.9rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
             }
             
-            .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px;}
+            .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px; border-radius: 10px;}
             .merged-title-container { justify-content: flex-start; }
+            
+            /* 手機版 highlight 微調 */
+            .highlight-style { transform: none; width: calc(100% - 35px); }
         }
     </style>
 </head>
@@ -287,10 +291,11 @@
 
 <script>
     // 資料結構
+    // highlight: true = 啟用黃底藍框樣式
     const timelineData = [
         {
             date: "2026.01.15",
-            highlight: false,
+            highlight: false, // 修正：取消 highlight
             cloud: { l1: "住院流程分析", l2: "北榮中國醫功能拆解\n每週四媒合專家顧問" },
             hosp: null,
             event: "2月中確認模組列表與年度開發規劃"
@@ -325,14 +330,14 @@
         },
         {
             date: "2026.02.11",
-            highlight: true, // 重要查核點 (文件標紅處)
+            highlight: false, // 修正：取消 highlight (住院模組確認)
             cloud: { l1: "住院模組確認", l2: "列出今年明年開發規劃" },
             hosp: { l1: "住院模組確認", l2: "陸續安排主要使用者回饋" },
             event: null
         },
         {
             date: "2026.02.26",
-            highlight: true, // 重要查核點 (文件標紅處)
+            highlight: true, // 保留 highlight (二階完成)
             cloud: { l1: "門診系統-二階完成", l2: "政府與特色模組除外" },
             hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋\n艾科完成VITA儀表頁面規劃" },
             event: null
@@ -346,7 +351,7 @@
         },
         {
             date: "2026.03.09",
-            highlight: true, // 重要查核點 (文件標紅處)
+            highlight: true, // 保留 highlight (落地私有雲)
             cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦\n完成附醫測試資料匯入" },
             hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主，完成前校園診所及整體規劃保留紙本管道\n門診電腦相關設備採購" },
             event: null
@@ -360,7 +365,7 @@
         },
         {
             date: "2026.03.31",
-            highlight: true, // 重要查核點 (文件標紅處)
+            highlight: false, // 修正：取消 highlight (艾科測試 & ERP POC)
             cloud: { l1: "門診系統-艾科測試", l2: "完成VITA艾科模組測試" },
             hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認\n竹銘需確認收費細節" },
             event: null
@@ -386,15 +391,17 @@
             eventHtml = `<div class="important-event-mini">${item.event}</div>`;
         }
 
-        // 處理紅色標題 CSS Class
-        const titleClass = item.highlight ? 'highlight-bg' : ''; 
+        // 處理 Highlight CSS Class
+        // highlight-style: 用於合併標題 (黃底藍框)
+        // highlight-text: 用於非合併標題
+        const mergedClass = item.highlight ? 'highlight-style' : ''; 
         const cardTitleClass = item.highlight ? 'highlight-text' : '';
 
         if (isMerged) {
             // 合併模式
             mergedTitleHtml = `
                 <div class="merged-title-container">
-                    <div class="merged-title ${titleClass}">${item.cloud.l1}</div>
+                    <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
                 </div>`;
             
             leftContentHtml = `
@@ -442,7 +449,6 @@
         container.appendChild(row);
     });
 
-    // 滾動動畫
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
