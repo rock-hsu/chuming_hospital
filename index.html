@@ -6,20 +6,26 @@
     <title>竹銘醫院資訊系統時程規劃</title>
     <style>
         :root {
-            /* 調整為更柔和的背景色，避免視覺疲勞 */
-            --bg-left: #f0f7ff;  /* 左側雲行淡藍 */
-            --bg-right: #f4fff6; /* 右側竹銘淡綠 */
-            --header-left: #0056b3;
-            --header-right: #28a745;
+            /* --- 色彩調整區 --- */
+            /* 加深背景色，提高白色卡片的對比度 */
+            --bg-left: #cfe2ff;  /* 雲行：飽和度較高的淡藍 */
+            --bg-right: #d1e7dd; /* 竹銘：飽和度較高的淡綠 */
             
-            --timeline-line: #cbd5e0;
+            --header-left: #0056b3;
+            --header-right: #155724; /* 配合深綠底色，字體改深一點的綠 */
+            
+            --timeline-line: #aab2bd; /* 線條稍微加深一點以匹配深色背景 */
             --card-bg: #ffffff;
             --text-main: #333;
-            --text-sub: #666;
+            --text-sub: #444; /* 內文稍微加深 */
             
-            --event-bg: #fffbf0;
-            --event-border: #ffeeba;
-            --event-text: #856404;
+            /* 重要事件相關 */
+            --event-text: #b91c1c; 
+            --event-bg: transparent;
+            
+            /* 重點查核點 (紅色標題) */
+            --highlight-bg: #dc3545;
+            --highlight-text: #ffffff;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +38,7 @@
             background-color: #fff;
         }
 
-        /* 1. 全域背景分割 (電腦版) */
+        /* 1. 全域背景分割 */
         .split-background {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -45,21 +51,22 @@
             background: #fff;
             text-align: center;
             padding: 2rem 1rem;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #ccc;
             position: relative;
             z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
         header.main-title p { color: #666; }
 
-        /* 2. 固定標題列 (Sticky Column Headers) */
+        /* 2. 固定標題列 (Sticky) */
         .sticky-col-headers {
             position: sticky;
             top: 0;
             z-index: 100;
             display: flex;
             width: 100%;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
         }
         .header-col {
             width: 50%;
@@ -71,19 +78,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         .header-col.left { background-color: var(--header-left); }
-        .header-col.right { background-color: var(--header-right); }
+        .header-col.right { background-color: #28a745; } /* 標題列保持鮮豔綠色 */
+        .header-col .icon { margin-right: 8px; font-size: 1.2rem; }
 
         /* Timeline Container */
         .timeline-container {
             position: relative;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px 100px; /* Bottom padding for scroll space */
+            padding: 40px 20px 100px;
         }
 
-        /* 3. 中間的時間軸線 (The Vertical Line) */
+        /* 3. 中間的時間軸線 */
         .timeline-container::after {
             content: '';
             position: absolute;
@@ -93,18 +102,21 @@
             bottom: 0;
             left: 50%;
             margin-left: -2px;
-            z-index: 0; /* 確保線在最底層 */
+            z-index: 0;
         }
 
         /* Timeline Row Wrapper */
         .timeline-row {
             position: relative;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
             width: 100%;
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.6s ease-out;
-            z-index: 1; /* 比線高 */
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .timeline-row.visible {
             opacity: 1;
@@ -113,18 +125,37 @@
 
         /* Date Badge */
         .date-badge {
-            width: 140px;
-            margin: 0 auto 20px auto;
+            width: 130px;
             background: #4a5568;
             color: white;
-            padding: 6px 0;
+            padding: 5px 0;
             text-align: center;
             border-radius: 20px;
             font-weight: bold;
             position: relative;
-            z-index: 5; /* 確保蓋過中線 */
-            box-shadow: 0 0 0 6px rgba(255,255,255,0.8); /* 白色光暈讓線看起來有斷開感 */
+            z-index: 5;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+            font-size: 1rem;
         }
+
+        /* 4. 重要事件 (緊貼日期) */
+        .important-event-mini {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            z-index: 5;
+            text-align: center;
+            max-width: 80%;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: inline-block;
+        }
+        .important-event-mini::before { content: '🔔 '; }
 
         /* Content Grid */
         .content-grid {
@@ -132,11 +163,12 @@
             justify-content: space-between;
             align-items: flex-start;
             position: relative;
+            width: 100%;
             flex-wrap: wrap;
         }
 
         .col-block {
-            width: 46%; /* 留空間給中線 */
+            width: 46%;
         }
         
         /* Merged Title Styles */
@@ -144,7 +176,7 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             position: relative;
             z-index: 2;
         }
@@ -155,20 +187,26 @@
             padding: 8px 25px;
             border-radius: 50px;
             font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Highlight Style (紅色底色標題) */
+        .highlight-bg {
+            background-color: var(--highlight-bg) !important;
+            color: var(--highlight-text) !important;
+            border-color: var(--highlight-bg) !important;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
         }
 
         /* Task Cards */
         .task-card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 陰影加深，讓卡片在深色背景更立體 */
             margin-bottom: 10px;
-            transition: transform 0.2s;
             border: 1px solid rgba(0,0,0,0.05);
         }
-        .task-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
 
         .l1-title {
             font-size: 1.1rem;
@@ -176,59 +214,56 @@
             margin-bottom: 8px;
             padding-bottom: 8px;
             border-bottom: 1px solid #eee;
+            display: inline-block;
+            width: 100%;
         }
+        
+        /* 標題顏色：配合背景加深，標題文字保持對比 */
         .col-block.left .l1-title { color: var(--header-left); }
         .col-block.right .l1-title { color: var(--header-right); }
 
+        /* Highlight Text Style */
+        .col-block .l1-title.highlight-text {
+            background-color: var(--highlight-bg);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
         .l2-detail {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--text-sub);
-            white-space: pre-line; /* 支援換行符號 */
+            white-space: pre-line;
+            line-height: 1.6;
         }
 
         /* Empty State */
         .empty-space { height: 1px; }
 
-        /* 4. 重要事件 (Important Event) - 橫幅樣式 */
-        .event-banner {
-            width: 100%;
-            margin-top: 15px;
-            background-color: var(--event-bg);
-            border: 1px solid var(--event-border);
-            color: var(--event-text);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.95rem;
-            position: relative;
-            z-index: 2;
-        }
-        .event-banner strong { margin-right: 5px; }
-
         /* RWD Mobile Design */
         @media screen and (max-width: 768px) {
-            .split-background { background: #f8f9fa; } /* 手機版移除左右分割色 */
-            
-            /* 手機版隱藏置頂左右標題，改為傳統流式佈局 */
+            .split-background { background: #f8f9fa; } 
             .sticky-col-headers { display: none; }
             
             .timeline-container::after { left: 20px; }
-            .date-badge { margin-left: 0; width: auto; display: inline-block; padding: 5px 15px; }
+            .timeline-row { align-items: flex-start; }
             
+            .date-badge { margin-left: 0; margin-right: 0; display: inline-block; }
+            .important-event-mini { display: block; width: fit-content; margin-top: 5px; margin-left: 0; text-align: left;}
+
             .content-grid { flex-direction: column; padding-left: 35px; }
             .col-block { width: 100%; margin-bottom: 15px; }
 
-            /* 手機版需要顯示小標題來區分 */
             .col-block.left::before {
                 content: '雲行自主與任務';
-                display: block; font-size: 0.8rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold;
+                display: block; font-size: 0.9rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold;
             }
             .col-block.right::before {
                 content: '竹銘委外與協助';
-                display: block; font-size: 0.8rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
+                display: block; font-size: 0.9rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
             }
             
-            .merged-title { width: 100%; text-align: left; border-radius: 8px; margin-left: 35px; }
+            .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px;}
             .merged-title-container { justify-content: flex-start; }
         }
     </style>
@@ -243,79 +278,89 @@
 </header>
 
 <div class="sticky-col-headers">
-    <div class="header-col left">雲行自主與任務</div>
-    <div class="header-col right">竹銘委外與協助</div>
+    <div class="header-col left"><span class="icon">☁️</span> 雲行自主與任務</div>
+    <div class="header-col right"><span class="icon">🏥</span> 竹銘委外與協助</div>
 </div>
 
 <div class="timeline-container" id="timeline">
     </div>
 
 <script>
-    // 資料結構保持不變
+    // 資料結構
     const timelineData = [
         {
             date: "2026.01.15",
-            cloud: { l1: "住院流程分析", l2: "北榮中國醫功能拆解" },
+            highlight: false,
+            cloud: { l1: "住院流程分析", l2: "北榮中國醫功能拆解\n每週四媒合專家顧問" },
             hosp: null,
-            event: "2月中確認模組列表與年度開發規劃<br>每週四媒合專家顧問"
+            event: "2月中確認模組列表與年度開發規劃"
         },
         {
             date: "2026.01.20",
+            highlight: false,
             cloud: { l1: "權限登入功能", l2: "完成權限登入測試" },
             hosp: null,
             event: null
         },
         {
             date: "2026.01.23",
-            // 合併測試：L1 標題相同
+            highlight: false,
             cloud: { l1: "ERP五週六堂課", l2: "了解欄位與串接" },
             hosp: { l1: "ERP五週六堂課", l2: "了解流程與功能" },
             event: "釐清採購與合作範圍"
         },
         {
             date: "2026.01.29",
+            highlight: false,
             cloud: null,
             hosp: { l1: "智慧病房方案", l2: "提出各級病房功能列表" },
             event: "雲行參與會議討論串接"
         },
         {
             date: "2026.01.30",
+            highlight: false,
             cloud: { l1: "門診系統-校園診所", l2: "完成校園診所基本檔收集" },
             hosp: { l1: "門診系統-校園診所", l2: "整理週邊軟硬體串接清單" },
             event: "檢驗.藥品.儀器.檢查等列表(待籌備處提供)"
         },
         {
             date: "2026.02.11",
+            highlight: true, // 重要查核點 (文件標紅處)
             cloud: { l1: "住院模組確認", l2: "列出今年明年開發規劃" },
             hosp: { l1: "住院模組確認", l2: "陸續安排主要使用者回饋" },
             event: null
         },
         {
             date: "2026.02.26",
+            highlight: true, // 重要查核點 (文件標紅處)
             cloud: { l1: "門診系統-二階完成", l2: "政府與特色模組除外" },
-            hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋" },
-            event: "艾科完成VITA儀表頁面規劃"
+            hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋\n艾科完成VITA儀表頁面規劃" },
+            event: null
         },
         {
             date: "2026.03.02",
+            highlight: false,
             cloud: { l1: "雲行APP啟動規劃", l2: "兩週完成初版架構規劃" },
-            hosp: { l1: "雲行APP啟動規劃", l2: "客戶服務流程細節說明\n(竹銘代表以室裝模擬圖說明特色)" },
+            hosp: { l1: "雲行APP啟動規劃", l2: "客戶服務流程細節說明\n竹銘代表以室裝模擬圖說明特色" },
             event: null
         },
         {
             date: "2026.03.09",
+            highlight: true, // 重要查核點 (文件標紅處)
             cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦\n完成附醫測試資料匯入" },
-            hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主\n門診電腦相關設備採購" },
+            hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主，完成前校園診所及整體規劃保留紙本管道\n門診電腦相關設備採購" },
             event: null
         },
         {
             date: "2026.03.16",
+            highlight: false,
             cloud: { l1: "門診系統-政府串連報告", l2: "列出門診串連政府服務清單與時程" },
             hosp: { l1: "委外系統評選", l2: "公文系統評估\n人事系統評估 (雲行人事模組串連討論)" },
             event: "竹銘組織架構內外部應確立"
         },
         {
             date: "2026.03.31",
+            highlight: true, // 重要查核點 (文件標紅處)
             cloud: { l1: "門診系統-艾科測試", l2: "完成VITA艾科模組測試" },
             hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認\n竹銘需確認收費細節" },
             event: null
@@ -328,21 +373,30 @@
         const row = document.createElement('div');
         row.className = 'timeline-row';
 
-        // 判斷是否合併標題 (當兩邊 L1 存在且相等)
+        // 判斷合併
         const isMerged = (item.cloud && item.hosp && item.cloud.l1 === item.hosp.l1);
 
         let mergedTitleHtml = '';
         let leftContentHtml = '';
         let rightContentHtml = '';
 
+        // 處理重要事件
+        let eventHtml = '';
+        if (item.event) {
+            eventHtml = `<div class="important-event-mini">${item.event}</div>`;
+        }
+
+        // 處理紅色標題 CSS Class
+        const titleClass = item.highlight ? 'highlight-bg' : ''; 
+        const cardTitleClass = item.highlight ? 'highlight-text' : '';
+
         if (isMerged) {
-            // 合併模式：標題抽出來置中
+            // 合併模式
             mergedTitleHtml = `
                 <div class="merged-title-container">
-                    <div class="merged-title">${item.cloud.l1}</div>
+                    <div class="merged-title ${titleClass}">${item.cloud.l1}</div>
                 </div>`;
             
-            // 內容區塊只放 L2
             leftContentHtml = `
                 <div class="task-card">
                     <div class="l2-detail">${item.cloud.l2}</div>
@@ -352,11 +406,11 @@
                     <div class="l2-detail">${item.hosp.l2}</div>
                 </div>`;
         } else {
-            // 一般模式：各自顯示 L1 + L2
+            // 分開模式
             if (item.cloud) {
                 leftContentHtml = `
                     <div class="task-card">
-                        <div class="l1-title">${item.cloud.l1}</div>
+                        <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
                         <div class="l2-detail">${item.cloud.l2}</div>
                     </div>`;
             } else {
@@ -366,7 +420,7 @@
             if (item.hosp) {
                 rightContentHtml = `
                     <div class="task-card">
-                        <div class="l1-title">${item.hosp.l1}</div>
+                        <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
                         <div class="l2-detail">${item.hosp.l2}</div>
                     </div>`;
             } else {
@@ -374,30 +428,21 @@
             }
         }
 
-        // 處理重要事件 (橫幅)
-        let eventHtml = '';
-        if (item.event) {
-            eventHtml = `
-                <div class="event-banner">
-                    <strong>🔔 重要事件：</strong> ${item.event}
-                </div>`;
-        }
-
         // 組合 HTML
         row.innerHTML = `
             <div class="date-badge">${item.date}</div>
+            ${eventHtml}
             ${mergedTitleHtml}
             <div class="content-grid">
                 <div class="col-block left">${leftContentHtml}</div>
                 <div class="col-block right">${rightContentHtml}</div>
-                ${eventHtml}
             </div>
         `;
 
         container.appendChild(row);
     });
 
-    // 滾動動畫偵測
+    // 滾動動畫
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
