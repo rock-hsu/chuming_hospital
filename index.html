@@ -23,11 +23,10 @@
             --event-bg: #fff3cd;
             --event-border: #ffeeba;
             
-            /* 重點查核點 (Highlight) 樣式定義 */
-            /* 修改處：將背景色改為亮黃色 */
-            --highlight-bg: #ffeb3b; /* 亮黃色 (Vibrant Yellow) */
-            --highlight-border: #0056b3; /* 維持藍色邊框 */
-            --highlight-text: #0056b3;   /* 維持藍色文字 */
+            /* 重點查核點 (Highlight) 樣式定義 - 亮黃色背景 */
+            --highlight-bg: #ffeb3b; 
+            --highlight-border: #0056b3;
+            --highlight-text: #0056b3;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -171,7 +170,7 @@
 
         .col-block { width: 46%; }
         
-        /* 合併標題樣式 (Merged Title) */
+        /* 合併標題樣式 */
         .merged-title-container {
             width: 100%;
             display: flex;
@@ -181,9 +180,9 @@
             z-index: 2;
         }
         .merged-title {
-            background: white; /* 預設白底 */
-            border: 2px solid var(--header-left); /* 預設藍框 */
-            color: var(--header-left); /* 預設藍字 */
+            background: white;
+            border: 2px solid var(--header-left);
+            color: var(--header-left);
             padding: 8px 25px;
             border-radius: 50px;
             font-weight: bold;
@@ -191,7 +190,7 @@
             transition: all 0.3s ease;
         }
 
-        /* 重點查核點樣式 (Highlight Style) - 亮黃色背景 */
+        /* Highlight 樣式 */
         .highlight-style {
             background-color: var(--highlight-bg) !important; 
             border-color: var(--highlight-border) !important; 
@@ -223,7 +222,6 @@
         .col-block.left .l1-title { color: var(--header-left); }
         .col-block.right .l1-title { color: var(--header-right); }
 
-        /* 如果標題沒有合併，但又是 highlight */
         .l1-title.highlight-text {
             background-color: var(--highlight-bg);
             color: var(--highlight-text) !important;
@@ -277,7 +275,7 @@
 
 <header class="main-title">
     <h1>竹銘醫院資訊系統時程規劃</h1>
-    <p>2026 年度專案開發與導入進度表</p>
+    <p>2026 年度專案開發與導入進度表 </p>
 </header>
 
 <div class="sticky-col-headers">
@@ -289,13 +287,12 @@
     </div>
 
 <script>
-    // 資料結構
-    // highlight: true = 啟用亮黃底藍框樣式
+    // 資料結構 - 根據上傳的檔案 更新
     const timelineData = [
         {
             date: "2026.01.15",
             highlight: false,
-            cloud: { l1: "住院流程分析", l2: "北榮中國醫功能拆解\n每週四媒合專家顧問" },
+            cloud: { l1: "住院系統-流程分析", l2: "北榮中國醫功能拆解\n每週四媒合專家顧問" },
             hosp: null,
             event: "2月中確認模組列表與年度開發規劃"
         },
@@ -329,16 +326,16 @@
         },
         {
             date: "2026.02.11",
-            highlight: false,
-            cloud: { l1: "住院模組確認", l2: "列出今年明年開發規劃" },
-            hosp: { l1: "住院模組確認", l2: "陸續安排主要使用者回饋" },
+            highlight: true, // 重要查核點
+            cloud: { l1: "住院系統-模組確認", l2: "列出今年明年開發規劃" },
+            hosp: { l1: "住院系統-模組確認", l2: "陸續安排主要使用者回饋" },
             event: null
         },
         {
             date: "2026.02.26",
-            highlight: true, // 亮黃底
-            cloud: { l1: "門診系統-二階完成", l2: "政府與特色模組除外" },
-            hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋\n艾科完成VITA儀表頁面規劃" },
+            highlight: true, // 重要查核點 (二階完成)
+            cloud: { l1: "門診系統-二階完成", l2: "政府與特色模組除外\n艾科完成VITA儀表頁面規劃" },
+            hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋" },
             event: null
         },
         {
@@ -350,7 +347,7 @@
         },
         {
             date: "2026.03.09",
-            highlight: true, // 亮黃底
+            highlight: true, // 重要查核點 (落地私有雲)
             cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦\n完成附醫測試資料匯入" },
             hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主，完成前校園診所及整體規劃保留紙本管道\n門診電腦相關設備採購" },
             event: null
@@ -359,7 +356,7 @@
             date: "2026.03.16",
             highlight: false,
             cloud: { l1: "門診系統-政府串連報告", l2: "列出門診串連政府服務清單與時程" },
-            hosp: { l1: "委外系統評選", l2: "公文系統評估\n人事系統評估 (雲行人事模組串連討論)" },
+            hosp: { l1: "委外系統評選", l2: "公文系統評估\n人事系統評估\n雲行人事模組串連討論" },
             event: "竹銘組織架構內外部應確立"
         },
         {
@@ -367,6 +364,76 @@
             highlight: false,
             cloud: { l1: "門診系統-艾科測試", l2: "完成VITA艾科模組測試" },
             hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認\n竹銘需確認收費細節" },
+            event: null
+        },
+        {
+            date: "2026.04.10",
+            highlight: false,
+            cloud: { l1: "門診系統-收據、處方箋、檢驗查", l2: "電子版傳送與紙本列印雙軌" },
+            hosp: { l1: "ERP POC安裝設定", l2: "醫院在此前需回傳誠杏標準欄位修改建議" },
+            event: "請財務與瑞真共同確認細節"
+        },
+        {
+            date: "2026.04.17",
+            highlight: false,
+            cloud: { l1: "門診系統-圖床流程", l2: "完成門急住圖床共用模組，含VITA查詢" },
+            hosp: { l1: "開院前委外系統安裝環境架設", l2: "協調安裝於祥豐私有雲或公有雲(G or M)" },
+            event: "3月需啟動決策會議"
+        },
+        {
+            date: "2026.04.24",
+            highlight: false,
+            cloud: { l1: "門診系統-政府串連測試", l2: "身分證串連疫苗與癌篩" },
+            hosp: { l1: "部份委外系統採購完成", l2: "公文系統採購完成，一個月內完成設定測試\n人事系統採購完成，一個月內完成設定測試" },
+            event: "5月完成人資、公文相關安裝"
+        },
+        {
+            date: "2026.04.30",
+            highlight: false,
+            cloud: { l1: "住院系統-資料流確認", l2: "以流程思考資料流與內容" },
+            hosp: { l1: "住院系統-資料流確認", l2: "邀請專家顧問回饋建議" },
+            event: null
+        },
+        {
+            date: "2026.05.08",
+            highlight: false,
+            cloud: { l1: "門診系統-申報測試", l2: "以門診規則確認申報內容" },
+            hosp: { l1: "委外系統評選", l2: "知識文管系統評估" },
+            event: null
+        },
+        {
+            date: "2026.05.15",
+            highlight: false,
+            cloud: { l1: "門診系統-處方開立及疑義", l2: "以幼獅藥局合作模擬合作藥局配藥" },
+            hosp: { l1: "委外系統評選", l2: "後勤管理系統評估" },
+            event: null
+        },
+        {
+            date: "2026.05.22",
+            highlight: false,
+            cloud: { l1: "門診系統-檢驗委外.檢查排程", l2: "以檢驗所資訊串連、以現有儀器開單" },
+            hosp: { l1: "委外系統評選", l2: "醫材、特材、UDI與捷格對接討論" },
+            event: null
+        },
+        {
+            date: "2026.05.28",
+            highlight: false,
+            cloud: { l1: "門診系統-疫苗流程測試", l2: "以NIIS串連流程並於VITA展現" },
+            hosp: { l1: "門診系統-內部測試", l2: "釋出前竹銘醫療專家於mockup測試" },
+            event: null
+        },
+        {
+            date: "2026.06.05",
+            highlight: true, // 三階完成 - 標記為重要查核點
+            cloud: { l1: "門診系統-三階完成", l2: "安裝測試系統於陽明交大" },
+            hosp: { l1: "門診系統-三階完成", l2: "竹銘資訊人力協助新竹現場\n必要時台中人力上線駐點" },
+            event: null
+        },
+        {
+            date: "2026.06.12",
+            highlight: false,
+            cloud: { l1: "護理系統-流程分析", l2: "" },
+            hosp: { l1: "護理系統-流程分析", l2: "" },
             event: null
         }
     ];
@@ -397,13 +464,17 @@
                     <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
                 </div>`;
             
+            // 如果 L2 為空，則顯示空字串或調整
+            const leftL2 = item.cloud.l2 ? item.cloud.l2 : "&nbsp;";
+            const rightL2 = item.hosp.l2 ? item.hosp.l2 : "&nbsp;";
+
             leftContentHtml = `
                 <div class="task-card">
-                    <div class="l2-detail">${item.cloud.l2}</div>
+                    <div class="l2-detail">${leftL2}</div>
                 </div>`;
             rightContentHtml = `
                 <div class="task-card">
-                    <div class="l2-detail">${item.hosp.l2}</div>
+                    <div class="l2-detail">${rightL2}</div>
                 </div>`;
         } else {
             if (item.cloud) {
