@@ -300,17 +300,12 @@
 
 <script>
     // --------------------------------------------------------------------------
-    // ⚠️ 請務必將下方的連結，替換回您自己的 Google Sheet CSV 連結 ⚠️
+    // 您的連結已經鑲嵌在此，請勿修改
     // --------------------------------------------------------------------------
-    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pubhtml'; 
+    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv';
 
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
-        if(GOOGLE_SHEET_CSV_URL.includes('連結貼在這裡')) {
-            alert("請記得在程式碼中更新您的 Google Sheet CSV 連結！");
-            document.getElementById('loading').style.display = 'none';
-            return;
-        }
         fetchAndRender(GOOGLE_SHEET_CSV_URL);
     });
 
@@ -394,3 +389,102 @@
             }
 
             return {
+                date: safeGet(0),
+                highlight: isHighlight,
+                cloud: cloudObj,
+                hosp: hospObj,
+                event: cleanText(safeGet(6))
+            };
+        });
+    }
+
+    function renderTimeline(data) {
+        const container = document.getElementById('timeline');
+        container.innerHTML = ''; 
+
+        data.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'timeline-row';
+
+            const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
+
+            let mergedTitleHtml = '';
+            let leftContentHtml = '';
+            let rightContentHtml = '';
+
+            let eventHtml = '';
+            if (item.event) {
+                eventHtml = `<div class="important-event-mini">${item.event}</div>`;
+            }
+
+            const mergedClass = item.highlight ? 'highlight-style' : ''; 
+            const cardTitleClass = item.highlight ? 'highlight-text' : '';
+
+            if (isMerged) {
+                mergedTitleHtml = `
+                    <div class="merged-title-container">
+                        <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
+                    </div>`;
+                
+                const leftL2 = item.cloud.l2 ? item.cloud.l2 : "&nbsp;";
+                const rightL2 = item.hosp.l2 ? item.hosp.l2 : "&nbsp;";
+
+                leftContentHtml = `
+                    <div class="task-card">
+                        <div class="l2-detail">${leftL2}</div>
+                    </div>`;
+                rightContentHtml = `
+                    <div class="task-card">
+                        <div class="l2-detail">${rightL2}</div>
+                    </div>`;
+            } else {
+                if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
+                    leftContentHtml = `
+                        <div class="task-card">
+                            <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
+                            <div class="l2-detail">${item.cloud.l2}</div>
+                        </div>`;
+                } else {
+                    leftContentHtml = `<div class="empty-space"></div>`;
+                }
+
+                if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
+                    rightContentHtml = `
+                        <div class="task-card">
+                            <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
+                            <div class="l2-detail">${item.hosp.l2}</div>
+                        </div>`;
+                } else {
+                    rightContentHtml = `<div class="empty-space"></div>`;
+                }
+            }
+
+            row.innerHTML = `
+                <div class="date-badge">${item.date}</div>
+                ${eventHtml}
+                ${mergedTitleHtml}
+                <div class="content-grid">
+                    <div class="col-block left">${leftContentHtml}</div>
+                    <div class="col-block right">${rightContentHtml}</div>
+                </div>
+            `;
+
+            container.appendChild(row);
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.timeline-row').forEach(item => {
+            observer.observe(item);
+        });
+    }
+</script>
+
+</body>
+</html>
