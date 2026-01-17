@@ -39,6 +39,14 @@
             background-color: #fff;
         }
 
+        /* 讀取中的提示 */
+        #loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; color: #666; font-weight: bold;
+        }
+
         /* 背景分割 */
         .split-background {
             position: fixed;
@@ -91,6 +99,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px 100px;
+            min-height: 50vh;
         }
 
         /* 中線 */
@@ -271,6 +280,7 @@
 </head>
 <body>
 
+<div id="loading">載入最新進度中...</div>
 <div class="split-background"></div>
 
 <header class="main-title">
@@ -284,245 +294,211 @@
 </div>
 
 <div class="timeline-container" id="timeline">
-    </div>
+</div>
 
 <script>
-    // 資料結構 - 根據上傳的檔案 更新
-    const timelineData = [
-        {
-            date: "2026.01.15",
-            highlight: false,
-            cloud: { l1: "住院系統-流程分析", l2: "北榮中國醫功能拆解\n每週四媒合專家顧問" },
-            hosp: null,
-            event: "2月中確認模組列表與年度開發規劃"
-        },
-        {
-            date: "2026.01.20",
-            highlight: false,
-            cloud: { l1: "權限登入功能", l2: "完成權限登入測試" },
-            hosp: null,
-            event: null
-        },
-        {
-            date: "2026.01.23",
-            highlight: false,
-            cloud: { l1: "ERP五週六堂課", l2: "了解欄位與串接" },
-            hosp: { l1: "ERP五週六堂課", l2: "了解流程與功能" },
-            event: "釐清採購與合作範圍"
-        },
-        {
-            date: "2026.01.29",
-            highlight: false,
-            cloud: null,
-            hosp: { l1: "智慧病房方案", l2: "提出各級病房功能列表" },
-            event: "雲行參與會議討論串接"
-        },
-        {
-            date: "2026.01.30",
-            highlight: false,
-            cloud: { l1: "門診系統-校園診所", l2: "完成校園診所基本檔收集" },
-            hosp: { l1: "門診系統-校園診所", l2: "整理週邊軟硬體串接清單" },
-            event: "檢驗.藥品.儀器.檢查等列表(待籌備處提供)"
-        },
-        {
-            date: "2026.02.11",
-            highlight: true, // 重要查核點
-            cloud: { l1: "住院系統-模組確認", l2: "列出今年明年開發規劃" },
-            hosp: { l1: "住院系統-模組確認", l2: "陸續安排主要使用者回饋" },
-            event: null
-        },
-        {
-            date: "2026.02.26",
-            highlight: true, // 重要查核點 (二階完成)
-            cloud: { l1: "門診系統-二階完成", l2: "政府與特色模組除外\n艾科完成VITA儀表頁面規劃" },
-            hosp: { l1: "門診系統-二階完成", l2: "安排使用者測試回饋" },
-            event: null
-        },
-        {
-            date: "2026.03.02",
-            highlight: false,
-            cloud: { l1: "雲行APP啟動規劃", l2: "兩週完成初版架構規劃" },
-            hosp: { l1: "雲行APP啟動規劃", l2: "客戶服務流程細節說明\n竹銘代表以室裝模擬圖說明特色" },
-            event: null
-        },
-        {
-            date: "2026.03.09",
-            highlight: true, // 重要查核點 (落地私有雲)
-            cloud: { l1: "門診系統-落地私有雲", l2: "測試維護與串連飛利浦\n完成附醫測試資料匯入" },
-            hosp: { l1: "門診系統-落地私有雲", l2: "籌備處模擬門診連線測試\nAPP搭配無紙化為主，完成前校園診所及整體規劃保留紙本管道\n門診電腦相關設備採購" },
-            event: null
-        },
-        {
-            date: "2026.03.16",
-            highlight: false,
-            cloud: { l1: "門診系統-政府串連報告", l2: "列出門診串連政府服務清單與時程" },
-            hosp: { l1: "委外系統評選", l2: "公文系統評估\n人事系統評估\n雲行人事模組串連討論" },
-            event: "竹銘組織架構內外部應確立"
-        },
-        {
-            date: "2026.03.31",
-            highlight: false,
-            cloud: { l1: "門診系統-艾科測試", l2: "完成VITA艾科模組測試" },
-            hosp: { l1: "ERP POC範圍規劃", l2: "門診收費與藥庫流程確認\n竹銘需確認收費細節" },
-            event: null
-        },
-        {
-            date: "2026.04.10",
-            highlight: false,
-            cloud: { l1: "門診系統-收據、處方箋、檢驗查", l2: "電子版傳送與紙本列印雙軌" },
-            hosp: { l1: "ERP POC安裝設定", l2: "醫院在此前需回傳誠杏標準欄位修改建議" },
-            event: "請財務與瑞真共同確認細節"
-        },
-        {
-            date: "2026.04.17",
-            highlight: false,
-            cloud: { l1: "門診系統-圖床流程", l2: "完成門急住圖床共用模組，含VITA查詢" },
-            hosp: { l1: "開院前委外系統安裝環境架設", l2: "協調安裝於祥豐私有雲或公有雲(G or M)" },
-            event: "3月需啟動決策會議"
-        },
-        {
-            date: "2026.04.24",
-            highlight: false,
-            cloud: { l1: "門診系統-政府串連測試", l2: "身分證串連疫苗與癌篩" },
-            hosp: { l1: "部份委外系統採購完成", l2: "公文系統採購完成，一個月內完成設定測試\n人事系統採購完成，一個月內完成設定測試" },
-            event: "5月完成人資、公文相關安裝"
-        },
-        {
-            date: "2026.04.30",
-            highlight: false,
-            cloud: { l1: "住院系統-資料流確認", l2: "以流程思考資料流與內容" },
-            hosp: { l1: "住院系統-資料流確認", l2: "邀請專家顧問回饋建議" },
-            event: null
-        },
-        {
-            date: "2026.05.08",
-            highlight: false,
-            cloud: { l1: "門診系統-申報測試", l2: "以門診規則確認申報內容" },
-            hosp: { l1: "委外系統評選", l2: "知識文管系統評估" },
-            event: null
-        },
-        {
-            date: "2026.05.15",
-            highlight: false,
-            cloud: { l1: "門診系統-處方開立及疑義", l2: "以幼獅藥局合作模擬合作藥局配藥" },
-            hosp: { l1: "委外系統評選", l2: "後勤管理系統評估" },
-            event: null
-        },
-        {
-            date: "2026.05.22",
-            highlight: false,
-            cloud: { l1: "門診系統-檢驗委外.檢查排程", l2: "以檢驗所資訊串連、以現有儀器開單" },
-            hosp: { l1: "委外系統評選", l2: "醫材、特材、UDI與捷格對接討論" },
-            event: null
-        },
-        {
-            date: "2026.05.28",
-            highlight: false,
-            cloud: { l1: "門診系統-疫苗流程測試", l2: "以NIIS串連流程並於VITA展現" },
-            hosp: { l1: "門診系統-內部測試", l2: "釋出前竹銘醫療專家於mockup測試" },
-            event: null
-        },
-        {
-            date: "2026.06.05",
-            highlight: true, // 三階完成 - 標記為重要查核點
-            cloud: { l1: "門診系統-三階完成", l2: "安裝測試系統於陽明交大" },
-            hosp: { l1: "門診系統-三階完成", l2: "竹銘資訊人力協助新竹現場\n必要時台中人力上線駐點" },
-            event: null
-        },
-        {
-            date: "2026.06.12",
-            highlight: false,
-            cloud: { l1: "護理系統-流程分析", l2: "" },
-            hosp: { l1: "護理系統-流程分析", l2: "" },
-            event: null
+    // --------------------------------------------------------------------------
+    // 這裡請填入您從 Google Sheets > 檔案 > 發布到網路 > CSV 所取得的連結
+    // --------------------------------------------------------------------------
+    const GOOGLE_SHEET_CSV_URL = '請將您的Google_Sheet_CSV連結貼在這裡'; 
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        // 如果使用者忘記換連結，使用預設空陣列避免報錯
+        if(GOOGLE_SHEET_CSV_URL.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv')) {
+            alert("請記得在程式碼中更新您的 Google Sheet CSV 連結！");
+            document.getElementById('loading').style.display = 'none';
+            return;
         }
-    ];
+        fetchAndRender(GOOGLE_SHEET_CSV_URL);
+    });
 
-    const container = document.getElementById('timeline');
+    async function fetchAndRender(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("網路讀取失敗");
+            const csvText = await response.text();
+            const data = parseCSV(csvText);
+            renderTimeline(data);
+            document.getElementById('loading').style.display = 'none';
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').textContent = "讀取資料失敗，請確認網路或連結設定。";
+        }
+    }
 
-    timelineData.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'timeline-row';
+    // 簡易且強大的 CSV 解析器 (可處理引號內的逗號與換行)
+    function parseCSV(text) {
+        // 移除可能的 BOM 標記
+        if (text.charCodeAt(0) === 0xFEFF) {
+            text = text.slice(1);
+        }
+        
+        const rows = [];
+        let currentRow = [];
+        let currentVal = '';
+        let insideQuote = false;
+        
+        // 逐字元解析
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const nextChar = text[i + 1];
 
-        const isMerged = (item.cloud && item.hosp && item.cloud.l1 === item.hosp.l1);
-
-        let mergedTitleHtml = '';
-        let leftContentHtml = '';
-        let rightContentHtml = '';
-
-        let eventHtml = '';
-        if (item.event) {
-            eventHtml = `<div class="important-event-mini">${item.event}</div>`;
+            if (char === '"') {
+                if (insideQuote && nextChar === '"') {
+                    // 處理跳脫的引號 "" -> "
+                    currentVal += '"';
+                    i++;
+                } else {
+                    // 切換引用狀態
+                    insideQuote = !insideQuote;
+                }
+            } else if (char === ',' && !insideQuote) {
+                // 欄位結束
+                currentRow.push(currentVal.trim());
+                currentVal = '';
+            } else if ((char === '\r' || char === '\n') && !insideQuote) {
+                // 行結束
+                currentRow.push(currentVal.trim());
+                if (currentRow.length > 1) { // 避免空行
+                    rows.push(currentRow);
+                }
+                currentRow = [];
+                currentVal = '';
+                // 處理 \r\n
+                if (char === '\r' && nextChar === '\n') i++;
+            } else {
+                currentVal += char;
+            }
+        }
+        // 處理最後一行
+        if (currentVal || currentRow.length > 0) {
+            currentRow.push(currentVal.trim());
+            rows.push(currentRow);
         }
 
-        const mergedClass = item.highlight ? 'highlight-style' : ''; 
-        const cardTitleClass = item.highlight ? 'highlight-text' : '';
+        // 移除標題列 (第一行)
+        const dataRows = rows.slice(1);
 
-        if (isMerged) {
-            mergedTitleHtml = `
-                <div class="merged-title-container">
-                    <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
-                </div>`;
+        // 轉換為我們需要的物件格式
+        // CSV 欄位順序假設: Date, Highlight, Cloud_Title, Cloud_Detail, Hosp_Title, Hosp_Detail, Event
+        return dataRows.map(row => {
+            // 安全性檢查，避免欄位不足
+            const safeGet = (idx) => row[idx] ? row[idx] : "";
             
-            // 如果 L2 為空，則顯示空字串或調整
-            const leftL2 = item.cloud.l2 ? item.cloud.l2 : "&nbsp;";
-            const rightL2 = item.hosp.l2 ? item.hosp.l2 : "&nbsp;";
+            // 轉換 Highlight 字串為 Boolean
+            const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
 
-            leftContentHtml = `
-                <div class="task-card">
-                    <div class="l2-detail">${leftL2}</div>
-                </div>`;
-            rightContentHtml = `
-                <div class="task-card">
-                    <div class="l2-detail">${rightL2}</div>
-                </div>`;
-        } else {
-            if (item.cloud) {
+            // 處理 Cloud 物件
+            let cloudObj = null;
+            if (safeGet(2) || safeGet(3)) {
+                cloudObj = { l1: safeGet(2), l2: safeGet(3) };
+            }
+
+            // 處理 Hosp 物件
+            let hospObj = null;
+            if (safeGet(4) || safeGet(5)) {
+                hospObj = { l1: safeGet(4), l2: safeGet(5) };
+            }
+
+            return {
+                date: safeGet(0),
+                highlight: isHighlight,
+                cloud: cloudObj,
+                hosp: hospObj,
+                event: safeGet(6)
+            };
+        });
+    }
+
+    function renderTimeline(data) {
+        const container = document.getElementById('timeline');
+        container.innerHTML = ''; // 清空
+
+        data.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'timeline-row';
+
+            // 判斷是否合併 (邏輯：若兩邊標題相同且不為空)
+            const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
+
+            let mergedTitleHtml = '';
+            let leftContentHtml = '';
+            let rightContentHtml = '';
+
+            let eventHtml = '';
+            if (item.event) {
+                eventHtml = `<div class="important-event-mini">${item.event}</div>`;
+            }
+
+            const mergedClass = item.highlight ? 'highlight-style' : ''; 
+            const cardTitleClass = item.highlight ? 'highlight-text' : '';
+
+            if (isMerged) {
+                mergedTitleHtml = `
+                    <div class="merged-title-container">
+                        <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
+                    </div>`;
+                
+                const leftL2 = item.cloud.l2 ? item.cloud.l2 : "&nbsp;";
+                const rightL2 = item.hosp.l2 ? item.hosp.l2 : "&nbsp;";
+
                 leftContentHtml = `
                     <div class="task-card">
-                        <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
-                        <div class="l2-detail">${item.cloud.l2}</div>
+                        <div class="l2-detail">${leftL2}</div>
                     </div>`;
-            } else {
-                leftContentHtml = `<div class="empty-space"></div>`;
-            }
-
-            if (item.hosp) {
                 rightContentHtml = `
                     <div class="task-card">
-                        <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
-                        <div class="l2-detail">${item.hosp.l2}</div>
+                        <div class="l2-detail">${rightL2}</div>
                     </div>`;
             } else {
-                rightContentHtml = `<div class="empty-space"></div>`;
+                if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
+                    leftContentHtml = `
+                        <div class="task-card">
+                            <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
+                            <div class="l2-detail">${item.cloud.l2}</div>
+                        </div>`;
+                } else {
+                    leftContentHtml = `<div class="empty-space"></div>`;
+                }
+
+                if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
+                    rightContentHtml = `
+                        <div class="task-card">
+                            <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
+                            <div class="l2-detail">${item.hosp.l2}</div>
+                        </div>`;
+                } else {
+                    rightContentHtml = `<div class="empty-space"></div>`;
+                }
             }
-        }
 
-        row.innerHTML = `
-            <div class="date-badge">${item.date}</div>
-            ${eventHtml}
-            ${mergedTitleHtml}
-            <div class="content-grid">
-                <div class="col-block left">${leftContentHtml}</div>
-                <div class="col-block right">${rightContentHtml}</div>
-            </div>
-        `;
+            row.innerHTML = `
+                <div class="date-badge">${item.date}</div>
+                ${eventHtml}
+                ${mergedTitleHtml}
+                <div class="content-grid">
+                    <div class="col-block left">${leftContentHtml}</div>
+                    <div class="col-block right">${rightContentHtml}</div>
+                </div>
+            `;
 
-        container.appendChild(row);
-    });
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
+            container.appendChild(row);
         });
-    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.timeline-row').forEach(item => {
-        observer.observe(item);
-    });
+        // 重新啟動 Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
 
+        document.querySelectorAll('.timeline-row').forEach(item => {
+            observer.observe(item);
+        });
+    }
 </script>
 
 </body>
