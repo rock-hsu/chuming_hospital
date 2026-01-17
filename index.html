@@ -218,14 +218,16 @@
             border: 1px solid rgba(0,0,0,0.05);
         }
 
+        /* ★★★ 這裡就是控制標題樣式的地方 ★★★ */
         .l1-title {
             font-size: 1.1rem;
             font-weight: bold;
             margin-bottom: 8px;
             padding-bottom: 8px;
             border-bottom: 1px solid #eee;
-            display: inline-block;
+            display: block;  /* 確保區塊顯示 */
             width: 100%;
+            text-align: center; /* ★ 新增：讓標題置中 */
         }
         
         .col-block.left .l1-title { color: var(--header-left); }
@@ -298,10 +300,9 @@
 
 <script>
     // --------------------------------------------------------------------------
-    // 這裡請填入您從 Google Sheets > 檔案 > 發布到網路 > CSV 所取得的連結
+    // ⚠️ 請務必將下方的連結，替換回您自己的 Google Sheet CSV 連結 ⚠️
     // --------------------------------------------------------------------------
-    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv'; 
-    // ↑↑↑ 請確保這裡已經替換成您正確的 CSV 連結 ↑↑↑
+    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pubhtml'; 
 
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
@@ -327,6 +328,7 @@
         }
     }
 
+    // CSV 解析與 \n 換行修復
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) {
             text = text.slice(1);
@@ -373,10 +375,9 @@
         return dataRows.map(row => {
             const safeGet = (idx) => row[idx] ? row[idx] : "";
             
-            // ★★★ 關鍵修正：將文字中的 "\n" 替換為真正的換行符號 ★★★
+            // 處理換行符號
             const cleanText = (str) => {
                 if (!str) return "";
-                // 將文字 "\n" 替換成換行符號，CSS 的 pre-line 會處理它
                 return str.replace(/\\n/g, '\n').trim();
             };
 
@@ -393,102 +394,3 @@
             }
 
             return {
-                date: safeGet(0),
-                highlight: isHighlight,
-                cloud: cloudObj,
-                hosp: hospObj,
-                event: cleanText(safeGet(6))
-            };
-        });
-    }
-
-    function renderTimeline(data) {
-        const container = document.getElementById('timeline');
-        container.innerHTML = ''; 
-
-        data.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'timeline-row';
-
-            const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
-
-            let mergedTitleHtml = '';
-            let leftContentHtml = '';
-            let rightContentHtml = '';
-
-            let eventHtml = '';
-            if (item.event) {
-                eventHtml = `<div class="important-event-mini">${item.event}</div>`;
-            }
-
-            const mergedClass = item.highlight ? 'highlight-style' : ''; 
-            const cardTitleClass = item.highlight ? 'highlight-text' : '';
-
-            if (isMerged) {
-                mergedTitleHtml = `
-                    <div class="merged-title-container">
-                        <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
-                    </div>`;
-                
-                const leftL2 = item.cloud.l2 ? item.cloud.l2 : "&nbsp;";
-                const rightL2 = item.hosp.l2 ? item.hosp.l2 : "&nbsp;";
-
-                leftContentHtml = `
-                    <div class="task-card">
-                        <div class="l2-detail">${leftL2}</div>
-                    </div>`;
-                rightContentHtml = `
-                    <div class="task-card">
-                        <div class="l2-detail">${rightL2}</div>
-                    </div>`;
-            } else {
-                if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
-                    leftContentHtml = `
-                        <div class="task-card">
-                            <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
-                            <div class="l2-detail">${item.cloud.l2}</div>
-                        </div>`;
-                } else {
-                    leftContentHtml = `<div class="empty-space"></div>`;
-                }
-
-                if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
-                    rightContentHtml = `
-                        <div class="task-card">
-                            <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
-                            <div class="l2-detail">${item.hosp.l2}</div>
-                        </div>`;
-                } else {
-                    rightContentHtml = `<div class="empty-space"></div>`;
-                }
-            }
-
-            row.innerHTML = `
-                <div class="date-badge">${item.date}</div>
-                ${eventHtml}
-                ${mergedTitleHtml}
-                <div class="content-grid">
-                    <div class="col-block left">${leftContentHtml}</div>
-                    <div class="col-block right">${rightContentHtml}</div>
-                </div>
-            `;
-
-            container.appendChild(row);
-        });
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.timeline-row').forEach(item => {
-            observer.observe(item);
-        });
-    }
-</script>
-
-</body>
-</html>
