@@ -300,11 +300,11 @@
     // --------------------------------------------------------------------------
     // 這裡請填入您從 Google Sheets > 檔案 > 發布到網路 > CSV 所取得的連結
     // --------------------------------------------------------------------------
-    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv'; 
+    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT17X3_tq-k1q4lJ5x7_iRjD8oF9l3t6y0H5j2P4Z8sN6mQ1/pub?output=csv'; 
+    // ↑↑↑ 請確保這裡已經替換成您正確的 CSV 連結 ↑↑↑
 
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
-        // 如果使用者忘記換連結，使用預設空陣列避免報錯
         if(GOOGLE_SHEET_CSV_URL.includes('連結貼在這裡')) {
             alert("請記得在程式碼中更新您的 Google Sheet CSV 連結！");
             document.getElementById('loading').style.display = 'none';
@@ -327,9 +327,7 @@
         }
     }
 
-    // 簡易且強大的 CSV 解析器 (可處理引號內的逗號與換行)
     function parseCSV(text) {
-        // 移除可能的 BOM 標記
         if (text.charCodeAt(0) === 0xFEFF) {
             text = text.slice(1);
         }
@@ -339,66 +337,59 @@
         let currentVal = '';
         let insideQuote = false;
         
-        // 逐字元解析
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
             const nextChar = text[i + 1];
 
             if (char === '"') {
                 if (insideQuote && nextChar === '"') {
-                    // 處理跳脫的引號 "" -> "
                     currentVal += '"';
                     i++;
                 } else {
-                    // 切換引用狀態
                     insideQuote = !insideQuote;
                 }
             } else if (char === ',' && !insideQuote) {
-                // 欄位結束
                 currentRow.push(currentVal.trim());
                 currentVal = '';
             } else if ((char === '\r' || char === '\n') && !insideQuote) {
-                // 行結束
                 currentRow.push(currentVal.trim());
-                if (currentRow.length > 1) { // 避免空行
+                if (currentRow.length > 1) { 
                     rows.push(currentRow);
                 }
                 currentRow = [];
                 currentVal = '';
-                // 處理 \r\n
                 if (char === '\r' && nextChar === '\n') i++;
             } else {
                 currentVal += char;
             }
         }
-        // 處理最後一行
         if (currentVal || currentRow.length > 0) {
             currentRow.push(currentVal.trim());
             rows.push(currentRow);
         }
 
-        // 移除標題列 (第一行)
         const dataRows = rows.slice(1);
 
-        // 轉換為我們需要的物件格式
-        // CSV 欄位順序假設: Date, Highlight, Cloud_Title, Cloud_Detail, Hosp_Title, Hosp_Detail, Event
         return dataRows.map(row => {
-            // 安全性檢查，避免欄位不足
             const safeGet = (idx) => row[idx] ? row[idx] : "";
             
-            // 轉換 Highlight 字串為 Boolean
+            // ★★★ 關鍵修正：將文字中的 "\n" 替換為真正的換行符號 ★★★
+            const cleanText = (str) => {
+                if (!str) return "";
+                // 將文字 "\n" 替換成換行符號，CSS 的 pre-line 會處理它
+                return str.replace(/\\n/g, '\n').trim();
+            };
+
             const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
 
-            // 處理 Cloud 物件
             let cloudObj = null;
             if (safeGet(2) || safeGet(3)) {
-                cloudObj = { l1: safeGet(2), l2: safeGet(3) };
+                cloudObj = { l1: cleanText(safeGet(2)), l2: cleanText(safeGet(3)) };
             }
 
-            // 處理 Hosp 物件
             let hospObj = null;
             if (safeGet(4) || safeGet(5)) {
-                hospObj = { l1: safeGet(4), l2: safeGet(5) };
+                hospObj = { l1: cleanText(safeGet(4)), l2: cleanText(safeGet(5)) };
             }
 
             return {
@@ -406,20 +397,19 @@
                 highlight: isHighlight,
                 cloud: cloudObj,
                 hosp: hospObj,
-                event: safeGet(6)
+                event: cleanText(safeGet(6))
             };
         });
     }
 
     function renderTimeline(data) {
         const container = document.getElementById('timeline');
-        container.innerHTML = ''; // 清空
+        container.innerHTML = ''; 
 
         data.forEach(item => {
             const row = document.createElement('div');
             row.className = 'timeline-row';
 
-            // 判斷是否合併 (邏輯：若兩邊標題相同且不為空)
             const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
 
             let mergedTitleHtml = '';
@@ -486,7 +476,6 @@
             container.appendChild(row);
         });
 
-        // 重新啟動 Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
