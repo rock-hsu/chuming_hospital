@@ -300,12 +300,12 @@
     // --------------------------------------------------------------------------
     // 這裡請填入您從 Google Sheets > 檔案 > 發布到網路 > CSV 所取得的連結
     // --------------------------------------------------------------------------
-    const GOOGLE_SHEET_CSV_URL = '請將您的Google_Sheet_CSV連結貼在這裡'; 
+    const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv'; 
 
     // 初始化
     document.addEventListener('DOMContentLoaded', () => {
         // 如果使用者忘記換連結，使用預設空陣列避免報錯
-        if(GOOGLE_SHEET_CSV_URL.includes('https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv')) {
+        if(GOOGLE_SHEET_CSV_URL.includes('連結貼在這裡')) {
             alert("請記得在程式碼中更新您的 Google Sheet CSV 連結！");
             document.getElementById('loading').style.display = 'none';
             return;
