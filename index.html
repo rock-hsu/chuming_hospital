@@ -51,7 +51,6 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             font-size: 1.2rem; color: #555; font-weight: bold;
         }
-        #loading span { margin-top: 10px; font-size: 0.9rem; color: #888; font-weight: normal;}
 
         .split-background {
             position: fixed;
@@ -60,28 +59,33 @@
             background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
 
+        /* 標題區：縮減高度，移除副標題空間 */
         header.main-title {
             background: #fff;
             text-align: center;
-            padding: 2rem 1rem 1rem;
+            padding: 1rem 1rem 0.5rem; /* 減少 padding */
             border-bottom: 1px solid #ccc;
             position: relative;
             z-index: 10;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
-        header.main-title p { color: #666; margin-bottom: 15px; }
+        header.main-title h1 { 
+            font-size: 1.8rem; /* 稍微縮小字體 */
+            margin-bottom: 0.5rem; 
+            color: #333; 
+        }
+        /* 移除 p 標籤樣式，因為已經被刪除 */
 
         /* --- 狀態圖例 --- */
         .status-legend {
             display: flex; justify-content: center; align-items: center;
-            flex-wrap: wrap; gap: 20px; font-size: 0.9rem; color: #555;
-            padding-top: 10px; border-top: 1px dashed #eee; 
+            flex-wrap: wrap; gap: 20px; font-size: 0.85rem; color: #555;
+            padding-top: 5px; padding-bottom: 10px;
             width: fit-content; margin: 0 auto; 
         }
         .legend-item { display: flex; align-items: center; }
         .legend-dot {
-            width: 12px; height: 12px; border-radius: 50%;
+            width: 10px; height: 10px; border-radius: 50%;
             margin-right: 6px; display: inline-block;
         }
 
@@ -91,27 +95,29 @@
         .summary-wrapper {
             background: #fff; width: 100%; border-bottom: 1px solid #ccc;
             position: relative; z-index: 9; transition: all 0.3s ease; overflow: hidden;
+            /* 限制最大高度，確保下方藍綠區塊能露出 */
+            max-height: 65vh; 
         }
         
         .summary-toggle-bar {
             text-align: center; background: #f8f9fa;
             border-top: 1px solid #eee; border-bottom: 1px solid #ddd;
             padding: 5px 0; cursor: pointer; color: #666;
-            font-size: 0.9rem; font-weight: bold; user-select: none;
+            font-size: 0.8rem; font-weight: bold; user-select: none;
         }
         .summary-toggle-bar:hover { background: #e9ecef; color: #333; }
         .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
         
         .summary-content {
-            padding: 30px 0 50px; /* 增加上下 padding */
+            padding: 20px 0 30px; 
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: thin; scrollbar-color: #aaa #f1f1f1;
             height: auto; opacity: 1; transition: height 0.3s, opacity 0.3s;
         }
-        .summary-content::-webkit-scrollbar { height: 10px; }
+        .summary-content::-webkit-scrollbar { height: 8px; }
         .summary-content::-webkit-scrollbar-track { background: #f1f1f1; }
-        .summary-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
+        .summary-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
 
         .fishbone-chart {
             display: inline-flex; align-items: center;
@@ -131,8 +137,15 @@
             align-items: center; justify-content: center;
             position: relative; margin: 0 5px; 
             min-width: 60px; 
-            height: 520px; /* ★★★ 修改：大幅增加高度，避免重疊 ★★★ */
+            height: 480px; /* 整體高度 */
             vertical-align: middle;
+            transition: min-width 0.3s ease; /* 平滑過渡 */
+        }
+
+        /* ★★★ 重點：當節點包含 Highlight 時，寬度加大，避免重疊 ★★★ */
+        .fb-node.highlight-node-container {
+            min-width: 90px; /* 給予更多空間 */
+            margin: 0 10px;
         }
 
         /* 年份大節點 */
@@ -150,7 +163,7 @@
             box-shadow: 0 0 0 2px #ccc;
         }
 
-        /* 一般日期球 */
+        /* 日期球 */
         .fb-date {
             background: #4a5568; color: #fff;
             padding: 2px 8px; border-radius: 12px;
@@ -161,28 +174,35 @@
             transition: all 0.3s ease;
         }
         
-        /* ★★★ 新增：魚骨圖上的重要日期標示 (Highlight) ★★★ */
         .fb-date.highlight-node {
             background-color: var(--highlight-bg);
             color: var(--highlight-text);
             border: 2px solid var(--highlight-border);
-            transform: translate(-50%, -50%) scale(1.3); /* 稍微放大 */
-            z-index: 6; /* 確保在最上層 */
+            transform: translate(-50%, -50%) scale(1.3); 
+            z-index: 6; 
             box-shadow: 0 0 0 3px #fff, 0 0 10px rgba(255, 235, 59, 0.5);
         }
 
-        /* 卡片共用樣式 */
+        /* ★★★ 卡片樣式大改版：固定高度與對齊 ★★★ */
         .fb-card {
             border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 6px; padding: 10px 4px;
+            border-radius: 6px; padding: 10px 6px;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             width: 50px; 
+            height: 180px; /* 設定固定高度 */
+            
+            /* 使用 Flexbox 實現 上對齊文字、下對齊燈號 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 關鍵：把內容推向兩端 */
+            align-items: center;
+
             position: relative; z-index: 3;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .fb-card:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; }
+        .fb-card:hover { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; }
 
         .fb-top .fb-card { 
             background-color: var(--bg-left); 
@@ -193,29 +213,29 @@
             border-bottom: 3px solid var(--header-right); 
         }
 
-        /* 連接線 (增加高度) */
+        /* 連接線 */
         .fb-top, .fb-bottom {
             position: absolute; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center;
         }
         .fb-top { 
             bottom: 50%; 
-            padding-bottom: 45px; /* ★★★ 修改：增加距離中線的距離 ★★★ */
+            padding-bottom: 40px; 
             justify-content: flex-end; 
         }
         .fb-bottom { 
             top: 50%; 
-            padding-top: 45px; /* ★★★ 修改：增加距離中線的距離 ★★★ */
+            padding-top: 40px; 
             justify-content: flex-start; 
         }
         
         .fb-top::after {
             content: ''; position: absolute; bottom: 0; left: 50%;
-            width: 2px; height: 45px; background: var(--timeline-line); /* 配合 padding 調整高度 */
+            width: 2px; height: 40px; background: var(--timeline-line); 
         }
         .fb-bottom::after {
             content: ''; position: absolute; top: 0; left: 50%;
-            width: 2px; height: 45px; background: var(--timeline-line); /* 配合 padding 調整高度 */
+            width: 2px; height: 40px; background: var(--timeline-line); 
         }
 
         /* 標題樣式 */
@@ -223,15 +243,15 @@
             font-size: 0.9rem; font-weight: bold; color: #333;
             writing-mode: vertical-rl; 
             text-orientation: mixed;
-            letter-spacing: 1px;
-            max-height: 180px; /* ★★★ 修改：允許文字更長 ★★★ */
-            margin: 0 auto 8px;
+            letter-spacing: 2px;
             text-align: left;
+            margin-top: 5px; /* 稍微離邊框一點距離 */
         }
 
         .fb-dots {
-            display: flex; flex-direction: column; 
+            display: flex; flex-direction: column; /* 燈號垂直排列 */
             gap: 4px; align-items: center;
+            margin-bottom: 5px; /* 離底部邊框一點距離 */
         }
         .mini-dot {
             width: 8px; height: 8px; border-radius: 50%;
@@ -395,8 +415,6 @@
 
 <header class="main-title" id="topHeader">
     <h1>竹銘醫院資訊系統時程管理</h1>
-    <p>2026 年度專案開發與導入進度表 </p>
-    
     <div class="status-legend">
         <div class="legend-item"><span class="legend-dot status-gray"></span>尚未開始</div>
         <div class="legend-item"><span class="legend-dot status-yellow"></span>討論分析</div>
@@ -432,7 +450,6 @@
         fetchAndRender(GOOGLE_SHEET_CSV_URL);
     });
 
-    // 捲動監聽：顯示/隱藏回到上方按鈕
     window.onscroll = function() {
         const btn = document.getElementById("backToTop");
         if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
@@ -478,7 +495,6 @@
         }
     }
 
-    // CSV 解析 (含合併邏輯)
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         const rows = [];
@@ -563,7 +579,6 @@
         return 'status-gray';
     }
 
-    // 渲染魚骨圖總表
     function renderFishbone(data) {
         const chartContainer = document.getElementById('fishboneChart');
         chartContainer.innerHTML = '';
@@ -573,7 +588,6 @@
         data.forEach((item, index) => {
             if (!item.date) return;
 
-            // 年份節點判斷
             const fullYear = item.date.split(/[./-]/)[0]; 
             
             if (fullYear !== lastYear) {
@@ -584,11 +598,14 @@
                 lastYear = fullYear;
             }
 
-            // 項目節點
             const node = document.createElement('div');
-            node.className = 'fb-node';
+            // ★★★ 自動加入 class 來撐開寬度，防止 highlight 重疊 ★★★
+            if (item.highlight) {
+                node.className = 'fb-node highlight-node-container';
+            } else {
+                node.className = 'fb-node';
+            }
 
-            // 日期球
             const dateParts = item.date.split(/[./-]/);
             const shortDate = (dateParts.length >= 3) ? `${dateParts[1]}.${dateParts[2]}` : item.date;
 
@@ -596,14 +613,12 @@
             dateEl.className = 'fb-date';
             dateEl.textContent = shortDate;
             
-            // ★★★ 判斷 highlight 並加上 class ★★★
             if (item.highlight) {
                 dateEl.classList.add('highlight-node');
             }
             
             node.appendChild(dateEl);
 
-            // 上半部 (Cloud)
             if (item.cloud && item.cloud.l1) {
                 const topWrapper = document.createElement('div');
                 topWrapper.className = 'fb-top';
@@ -617,7 +632,6 @@
                 node.appendChild(topWrapper);
             }
 
-            // 下半部 (Hosp)
             if (item.hosp && item.hosp.l1) {
                 const bottomWrapper = document.createElement('div');
                 bottomWrapper.className = 'fb-bottom';
