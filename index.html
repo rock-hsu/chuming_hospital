@@ -364,7 +364,7 @@
         .note-btn.has-note { color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite; }
         @keyframes pulse-note { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
-        /* 連結按鈕 */
+        /* 連結按鈕 (雲朵) */
         .link-btn {
             flex-shrink: 0; cursor: pointer; margin-left: 5px; margin-top: 4px;
             font-size: 1.2rem; text-decoration: none; color: #5bc0de;
@@ -496,6 +496,7 @@
         }
     }
 
+    // ★★★ 核心修改：新增連結欄位讀取與轉換 ★★★
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         const rows = [];
@@ -530,8 +531,17 @@
             const safeGet = (idx) => row[idx] ? row[idx].trim() : "";
             const hasDate = !!safeGet(0);
             const hasCloudTitle = !!safeGet(2);
-            const hasHospTitle = !!safeGet(7); // 竹銘標題在 H 欄 (index 7)
+            const hasHospTitle = !!safeGet(7);
             const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
+
+            // 處理連結：如果發現是 Google Drive View Link，轉成 Preview Link
+            const processLink = (link) => {
+                if (!link) return '';
+                if (link.includes('drive.google.com') && link.includes('/view')) {
+                    return link.replace('/view', '/preview');
+                }
+                return link;
+            };
 
             if (isNewCard) {
                 const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
@@ -543,7 +553,7 @@
                         l2: safeGet(3), 
                         status: safeGet(4), 
                         note: safeGet(5),
-                        link: safeGet(6) // 新增 Link
+                        link: processLink(safeGet(6))
                     };
                 }
                 let hospObj = null;
@@ -554,7 +564,7 @@
                         l2: safeGet(8), 
                         status: safeGet(9), 
                         note: safeGet(10),
-                        link: safeGet(11) // 新增 Link
+                        link: processLink(safeGet(11))
                     };
                 }
                 lastItem = {
@@ -572,14 +582,14 @@
                         lastItem.cloud.l2 += (lastItem.cloud.l2 ? '\n' : '') + safeGet(3);
                         lastItem.cloud.status += '\n' + safeGet(4); 
                         lastItem.cloud.note += '\n' + safeGet(5);
-                        lastItem.cloud.link += '\n' + safeGet(6);
+                        lastItem.cloud.link += '\n' + processLink(safeGet(6));
                     }
                     if (safeGet(8)) {
                         if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '', link: '' };
                         lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(8);
                         lastItem.hosp.status += '\n' + safeGet(9);
                         lastItem.hosp.note += '\n' + safeGet(10);
-                        lastItem.hosp.link += '\n' + safeGet(11);
+                        lastItem.hosp.link += '\n' + processLink(safeGet(11));
                     }
                 }
             }
@@ -674,7 +684,7 @@
         return html;
     }
 
-    // 渲染詳細時間軸 (新增連結按鈕)
+    // ★★★ 渲染詳細時間軸 (含雲朵連結按鈕) ★★★
     function createDetailHtml(detailRaw, statusRaw, noteRaw, linkRaw) {
         if (!detailRaw) return "&nbsp;";
         const details = detailRaw.split(/\r?\n/);
@@ -699,7 +709,7 @@
                     <div class="note-popover"><strong>說明：</strong>${currentNote.replace(/\n/g, '<br>')}</div>`;
             }
 
-            // 雲端連結按鈕
+            // 雲端連結按鈕 (雲朵)
             let linkBtnHtml = '';
             if (currentLink && currentLink.trim()) {
                 linkBtnHtml = `
