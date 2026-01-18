@@ -68,7 +68,32 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
-        header.main-title p { color: #666; }
+        header.main-title p { color: #666; margin-bottom: 15px; }
+
+        /* --- 新增：狀態圖例 (Legend) --- */
+        .status-legend {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px; /* 每個項目之間的距離 */
+            font-size: 0.95rem;
+            color: #555;
+            padding-top: 10px;
+            border-top: 1px dashed #eee; /* 上方加一條虛線分隔 */
+            width: fit-content;
+            margin: 0 auto; /* 置中 */
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+            display: inline-block;
+        }
 
         .sticky-col-headers {
             position: sticky;
@@ -186,7 +211,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin-bottom: 10px;
             border: 1px solid rgba(0,0,0,0.05);
-            position: relative; /* For popup positioning */
+            position: relative; 
         }
 
         .l1-title {
@@ -205,20 +230,19 @@
             border-left: 4px solid var(--highlight-border);
         }
 
-        /* --- 新增功能區塊：紅綠燈與備註 --- */
+        /* --- 燈號與備註功能區塊 --- */
         
         .l2-wrapper {
             display: flex;
-            align-items: flex-start; /* 對齊頂部，避免多行文字時跑版 */
+            align-items: flex-start;
             position: relative;
         }
 
-        /* 狀態燈號 */
         .status-dot {
             flex-shrink: 0;
             width: 12px; height: 12px;
             border-radius: 50%;
-            margin-top: 6px; /* 與文字第一行對齊 */
+            margin-top: 6px;
             margin-right: 10px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             border: 1px solid rgba(0,0,0,0.1);
@@ -234,7 +258,6 @@
             flex-grow: 1;
         }
 
-        /* 備註按鈕 (Icon) */
         .note-btn {
             flex-shrink: 0;
             cursor: pointer;
@@ -247,7 +270,7 @@
             border: none; background: none; padding: 0;
         }
         .note-btn.has-note {
-            color: #0d6efd; /* 有備註時亮藍燈 */
+            color: #0d6efd; 
             opacity: 1;
             animation: pulse-note 2s infinite;
         }
@@ -259,9 +282,8 @@
             100% { transform: scale(1); }
         }
 
-        /* 備註彈出氣泡 */
         .note-popover {
-            display: none; /* 預設隱藏 */
+            display: none; 
             position: absolute;
             bottom: 100%; right: 0;
             width: 250px;
@@ -277,7 +299,7 @@
             margin-bottom: 10px;
         }
         .note-popover.show { display: block; animation: fade-in 0.2s; }
-        .note-popover::after { /* 小三角形 */
+        .note-popover::after { 
             content: ""; position: absolute;
             top: 100%; right: 10px;
             border-width: 8px; border-style: solid;
@@ -307,6 +329,9 @@
             .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px; border-radius: 10px;}
             .merged-title-container { justify-content: flex-start; }
             .highlight-style { transform: none; width: calc(100% - 35px); }
+            
+            /* 手機版圖例調整 */
+            .status-legend { flex-wrap: wrap; gap: 10px; padding: 0 10px; }
         }
     </style>
 </head>
@@ -322,6 +347,13 @@
 <header class="main-title">
     <h1>竹銘醫院資訊系統時程管理</h1>
     <p>2026 年度專案開發與導入進度表 </p>
+    
+    <div class="status-legend">
+        <div class="legend-item"><span class="legend-dot status-gray"></span>尚未開始</div>
+        <div class="legend-item"><span class="legend-dot status-yellow"></span>討論分析</div>
+        <div class="legend-item"><span class="legend-dot status-red"></span>開始進行</div>
+        <div class="legend-item"><span class="legend-dot status-green"></span>如期完成</div>
+    </div>
 </header>
 
 <div class="sticky-col-headers">
@@ -333,9 +365,6 @@
 </div>
 
 <script>
-    // --------------------------------------------------------------------------
-    // 您的 Google Sheet CSV 連結 (已更新為您提供的連結)
-    // --------------------------------------------------------------------------
     const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -344,7 +373,6 @@
 
     async function fetchAndRender(url) {
         try {
-            // 加一點亂數避免瀏覽器快取舊資料
             const response = await fetch(url + "&t=" + new Date().getTime());
             if (!response.ok) throw new Error("網路讀取失敗");
             const csvText = await response.text();
@@ -357,7 +385,6 @@
         }
     }
 
-    // CSV 解析器 (配合新欄位結構調整)
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         
@@ -385,17 +412,11 @@
             currentRow.push(currentVal.trim()); rows.push(currentRow);
         }
 
-        const dataRows = rows.slice(1); // 移除標題列
+        const dataRows = rows.slice(1); 
 
         return dataRows.map(row => {
             const safeGet = (idx) => row[idx] ? row[idx].replace(/\\n/g, '\n').trim() : "";
             const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
-
-            // 預期欄位結構:
-            // 0:Date, 1:Highlight, 
-            // 2:Cloud_Title, 3:Cloud_Detail, 4:Cloud_Status, 5:Cloud_Note
-            // 6:Hosp_Title, 7:Hosp_Detail, 8:Hosp_Status, 9:Hosp_Note
-            // 10:Event
 
             let cloudObj = null;
             if (safeGet(2) || safeGet(3)) {
@@ -424,7 +445,7 @@
     }
 
     function getStatusClass(statusText) {
-        if (!statusText) return 'status-gray'; // 預設灰燈
+        if (!statusText) return 'status-gray';
         if (statusText.includes('尚未開始')) return 'status-gray';
         if (statusText.includes('討論分析')) return 'status-yellow';
         if (statusText.includes('開始進行')) return 'status-red';
@@ -437,21 +458,15 @@
         
         const statusClass = getStatusClass(statusText);
         
-        // 備註按鈕邏輯
         let noteHtml = '';
         if (noteText) {
-            // 有備註：顯示亮燈按鈕與氣泡
             noteHtml = `
                 <button class="note-btn has-note" onclick="toggleNote(this)">📝</button>
                 <div class="note-popover">
                     <strong>詳細說明：</strong>
                     ${noteText}
                 </div>`;
-        } else {
-            // 無備註：顯示隱藏的灰色按鈕 (或完全不顯示，這裡選擇完全不顯示保持版面乾淨)
-            // 如果希望顯示灰色按鈕，可取消下行註解
-            // noteHtml = '<button class="note-btn" style="cursor:default">📄</button>';
-        }
+        } 
 
         return `
             <div class="l2-wrapper">
@@ -523,7 +538,6 @@
             container.appendChild(row);
         });
 
-        // 動畫偵測
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) entry.target.classList.add('visible');
@@ -532,21 +546,15 @@
         document.querySelectorAll('.timeline-row').forEach(item => observer.observe(item));
     }
 
-    // 全域功能：切換備註氣泡
     window.toggleNote = function(btn) {
-        // 先關閉其他所有氣泡 (若希望一次只開一個)
         document.querySelectorAll('.note-popover.show').forEach(el => {
             if (el !== btn.nextElementSibling) el.classList.remove('show');
         });
-        
         const popover = btn.nextElementSibling;
         popover.classList.toggle('show');
-        
-        // 點擊別處關閉
         event.stopPropagation();
     };
 
-    // 點擊空白處關閉所有氣泡
     document.addEventListener('click', () => {
         document.querySelectorAll('.note-popover.show').forEach(el => el.classList.remove('show'));
     });
