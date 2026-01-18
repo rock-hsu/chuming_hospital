@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>竹銘醫院資訊系統時程規劃</title>
+    <title>竹銘醫院資訊系統時程管理</title>
     <style>
         :root {
             /* --- 色彩調整區 --- */
-            --bg-left: #cfe2ff;  /* 雲行：飽和度較高的淡藍 */
-            --bg-right: #d1e7dd; /* 竹銘：飽和度較高的淡綠 */
+            --bg-left: #cfe2ff;  
+            --bg-right: #d1e7dd; 
             
-            --header-left: #0056b3; /* 竹銘藍 */
+            --header-left: #0056b3; 
             --header-right: #155724; 
             
             --timeline-line: #aab2bd;
@@ -18,15 +18,19 @@
             --text-main: #333;
             --text-sub: #444;
             
-            /* 重要事件小標籤 (日期下方) */
             --event-text: #856404; 
             --event-bg: #fff3cd;
             --event-border: #ffeeba;
             
-            /* 重點查核點 (Highlight) 樣式定義 - 亮黃色背景 */
             --highlight-bg: #ffeb3b; 
             --highlight-border: #0056b3;
             --highlight-text: #0056b3;
+
+            /* --- 燈號顏色定義 --- */
+            --status-gray: #bdc3c7;   /* 尚未開始 */
+            --status-yellow: #f1c40f; /* 討論分析 */
+            --status-red: #e74c3c;    /* 開始進行 */
+            --status-green: #2ecc71;  /* 如期完成 */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,15 +43,14 @@
             background-color: #fff;
         }
 
-        /* 讀取中的提示 */
         #loading {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 2000;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.5rem; color: #666; font-weight: bold;
+            background: rgba(255,255,255,0.95); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-size: 1.2rem; color: #555; font-weight: bold;
         }
+        #loading span { margin-top: 10px; font-size: 0.9rem; color: #888; font-weight: normal;}
 
-        /* 背景分割 */
         .split-background {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -55,7 +58,6 @@
             background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
 
-        /* 標題區 */
         header.main-title {
             background: #fff;
             text-align: center;
@@ -68,7 +70,6 @@
         header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
         header.main-title p { color: #666; }
 
-        /* 固定欄位標題 */
         .sticky-col-headers {
             position: sticky;
             top: 0;
@@ -93,7 +94,6 @@
         .header-col.right { background-color: #28a745; }
         .header-col .icon { margin-right: 8px; font-size: 1.2rem; }
 
-        /* Timeline Container */
         .timeline-container {
             position: relative;
             max-width: 1200px;
@@ -101,21 +101,15 @@
             padding: 40px 20px 100px;
             min-height: 50vh;
         }
-
-        /* 中線 */
         .timeline-container::after {
             content: '';
             position: absolute;
             width: 4px;
             background-color: var(--timeline-line);
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            margin-left: -2px;
-            z-index: 0;
+            top: 0; bottom: 0; left: 50%;
+            margin-left: -2px; z-index: 0;
         }
 
-        /* Timeline Row */
         .timeline-row {
             position: relative;
             margin-bottom: 50px;
@@ -124,16 +118,10 @@
             transform: translateY(30px);
             transition: all 0.6s ease-out;
             z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .timeline-row.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .timeline-row.visible { opacity: 1; transform: translateY(0); }
 
-        /* 日期膠囊 */
         .date-badge {
             width: 130px;
             background: #4a5568;
@@ -149,7 +137,6 @@
             font-size: 1rem;
         }
 
-        /* 重要事件 (緊貼日期) */
         .important-event-mini {
             background-color: var(--event-bg);
             color: var(--event-text);
@@ -167,39 +154,24 @@
         }
         .important-event-mini::before { content: '🔔 '; }
 
-        /* 內容區塊 */
         .content-grid {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-            width: 100%;
-            flex-wrap: wrap;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            position: relative; width: 100%; flex-wrap: wrap;
         }
-
         .col-block { width: 46%; }
         
-        /* 合併標題樣式 */
         .merged-title-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 2;
+            width: 100%; display: flex; justify-content: center;
+            margin-bottom: 10px; position: relative; z-index: 2;
         }
         .merged-title {
-            background: white;
-            border: 2px solid var(--header-left);
-            color: var(--header-left);
-            padding: 8px 25px;
-            border-radius: 50px;
-            font-weight: bold;
+            background: white; border: 2px solid var(--header-left);
+            color: var(--header-left); padding: 8px 25px;
+            border-radius: 50px; font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
 
-        /* Highlight 樣式 */
         .highlight-style {
             background-color: var(--highlight-bg) !important; 
             border-color: var(--highlight-border) !important; 
@@ -208,85 +180,147 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
-        /* 任務卡片 */
         .task-card {
             background: var(--card-bg);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 10px; padding: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin-bottom: 10px;
             border: 1px solid rgba(0,0,0,0.05);
+            position: relative; /* For popup positioning */
         }
 
-        /* ★★★ 這裡就是控制標題樣式的地方 ★★★ */
         .l1-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
+            font-size: 1.1rem; font-weight: bold;
+            margin-bottom: 8px; padding-bottom: 8px;
             border-bottom: 1px solid #eee;
-            display: block;  /* 確保區塊顯示 */
-            width: 100%;
-            text-align: center; /* ★ 新增：讓標題置中 */
+            display: block; width: 100%; text-align: center;
         }
-        
         .col-block.left .l1-title { color: var(--header-left); }
         .col-block.right .l1-title { color: var(--header-right); }
 
         .l1-title.highlight-text {
             background-color: var(--highlight-bg);
             color: var(--highlight-text) !important;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 4px 8px; border-radius: 4px;
             border-left: 4px solid var(--highlight-border);
         }
 
-        .l2-detail {
-            font-size: 1rem;
-            color: var(--text-sub);
-            white-space: pre-line;
-            line-height: 1.6;
+        /* --- 新增功能區塊：紅綠燈與備註 --- */
+        
+        .l2-wrapper {
+            display: flex;
+            align-items: flex-start; /* 對齊頂部，避免多行文字時跑版 */
+            position: relative;
         }
+
+        /* 狀態燈號 */
+        .status-dot {
+            flex-shrink: 0;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            margin-top: 6px; /* 與文字第一行對齊 */
+            margin-right: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .status-gray { background-color: var(--status-gray); }
+        .status-yellow { background-color: var(--status-yellow); }
+        .status-red { background-color: var(--status-red); box-shadow: 0 0 5px var(--status-red); }
+        .status-green { background-color: var(--status-green); box-shadow: 0 0 5px var(--status-green); }
+
+        .l2-detail {
+            font-size: 1rem; color: var(--text-sub);
+            white-space: pre-line; line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        /* 備註按鈕 (Icon) */
+        .note-btn {
+            flex-shrink: 0;
+            cursor: pointer;
+            margin-left: 8px;
+            margin-top: 4px;
+            color: #888;
+            font-size: 1.1rem;
+            opacity: 0.6;
+            transition: all 0.2s;
+            border: none; background: none; padding: 0;
+        }
+        .note-btn.has-note {
+            color: #0d6efd; /* 有備註時亮藍燈 */
+            opacity: 1;
+            animation: pulse-note 2s infinite;
+        }
+        .note-btn:hover { transform: scale(1.1); opacity: 1; }
+
+        @keyframes pulse-note {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 備註彈出氣泡 */
+        .note-popover {
+            display: none; /* 預設隱藏 */
+            position: absolute;
+            bottom: 100%; right: 0;
+            width: 250px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            font-size: 0.9rem;
+            color: #555;
+            text-align: left;
+            margin-bottom: 10px;
+        }
+        .note-popover.show { display: block; animation: fade-in 0.2s; }
+        .note-popover::after { /* 小三角形 */
+            content: ""; position: absolute;
+            top: 100%; right: 10px;
+            border-width: 8px; border-style: solid;
+            border-color: #fff transparent transparent transparent;
+        }
+        .note-popover strong { display: block; margin-bottom: 5px; color: #333; }
+        
+        @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .empty-space { height: 1px; }
 
-        /* RWD Mobile */
         @media screen and (max-width: 768px) {
             .split-background { background: #f8f9fa; } 
             .sticky-col-headers { display: none; }
-            
             .timeline-container::after { left: 20px; }
             .timeline-row { align-items: flex-start; }
-            
             .date-badge { margin-left: 0; display: inline-block; }
             .important-event-mini { display: block; width: fit-content; margin-top: 5px; margin-left: 0; text-align: left;}
-
             .content-grid { flex-direction: column; padding-left: 35px; }
             .col-block { width: 100%; margin-bottom: 15px; }
-
             .col-block.left::before {
-                content: '雲行自主與任務';
-                display: block; font-size: 0.9rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold;
+                content: '雲行自主與任務'; display: block; font-size: 0.9rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold;
             }
             .col-block.right::before {
-                content: '竹銘委外與協助';
-                display: block; font-size: 0.9rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
+                content: '竹銘委外與協助'; display: block; font-size: 0.9rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
             }
-            
             .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px; border-radius: 10px;}
             .merged-title-container { justify-content: flex-start; }
-            
             .highlight-style { transform: none; width: calc(100% - 35px); }
         }
     </style>
 </head>
 <body>
 
-<div id="loading">載入最新進度中...</div>
+<div id="loading">
+    <div>讀取專案進度中...</div>
+    <span>(若很久沒反應，請檢查 Google Sheet 欄位是否已更新)</span>
+</div>
+
 <div class="split-background"></div>
 
 <header class="main-title">
-    <h1>竹銘醫院資訊系統時程規劃</h1>
+    <h1>竹銘醫院資訊系統時程管理</h1>
     <p>2026 年度專案開發與導入進度表 </p>
 </header>
 
@@ -300,18 +334,18 @@
 
 <script>
     // --------------------------------------------------------------------------
-    // 您的連結已經鑲嵌在此，請勿修改
+    // 您的 Google Sheet CSV 連結 (已更新為您提供的連結)
     // --------------------------------------------------------------------------
     const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv';
 
-    // 初始化
     document.addEventListener('DOMContentLoaded', () => {
         fetchAndRender(GOOGLE_SHEET_CSV_URL);
     });
 
     async function fetchAndRender(url) {
         try {
-            const response = await fetch(url);
+            // 加一點亂數避免瀏覽器快取舊資料
+            const response = await fetch(url + "&t=" + new Date().getTime());
             if (!response.ok) throw new Error("網路讀取失敗");
             const csvText = await response.text();
             const data = parseCSV(csvText);
@@ -319,15 +353,13 @@
             document.getElementById('loading').style.display = 'none';
         } catch (error) {
             console.error(error);
-            document.getElementById('loading').textContent = "讀取資料失敗，請確認網路或連結設定。";
+            document.getElementById('loading').innerHTML = `<div style='color:red'>讀取失敗<br>請確認 Google Sheet 已發布且欄位順序正確</div>`;
         }
     }
 
-    // CSV 解析與 \n 換行修復
+    // CSV 解析器 (配合新欄位結構調整)
     function parseCSV(text) {
-        if (text.charCodeAt(0) === 0xFEFF) {
-            text = text.slice(1);
-        }
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         
         const rows = [];
         let currentRow = [];
@@ -337,55 +369,48 @@
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
             const nextChar = text[i + 1];
-
             if (char === '"') {
-                if (insideQuote && nextChar === '"') {
-                    currentVal += '"';
-                    i++;
-                } else {
-                    insideQuote = !insideQuote;
-                }
+                if (insideQuote && nextChar === '"') { currentVal += '"'; i++; }
+                else { insideQuote = !insideQuote; }
             } else if (char === ',' && !insideQuote) {
-                currentRow.push(currentVal.trim());
-                currentVal = '';
+                currentRow.push(currentVal.trim()); currentVal = '';
             } else if ((char === '\r' || char === '\n') && !insideQuote) {
                 currentRow.push(currentVal.trim());
-                if (currentRow.length > 1) { 
-                    rows.push(currentRow);
-                }
-                currentRow = [];
-                currentVal = '';
+                if (currentRow.length > 1) rows.push(currentRow);
+                currentRow = []; currentVal = '';
                 if (char === '\r' && nextChar === '\n') i++;
-            } else {
-                currentVal += char;
-            }
+            } else { currentVal += char; }
         }
         if (currentVal || currentRow.length > 0) {
-            currentRow.push(currentVal.trim());
-            rows.push(currentRow);
+            currentRow.push(currentVal.trim()); rows.push(currentRow);
         }
 
-        const dataRows = rows.slice(1);
+        const dataRows = rows.slice(1); // 移除標題列
 
         return dataRows.map(row => {
-            const safeGet = (idx) => row[idx] ? row[idx] : "";
-            
-            // 處理換行符號
-            const cleanText = (str) => {
-                if (!str) return "";
-                return str.replace(/\\n/g, '\n').trim();
-            };
-
+            const safeGet = (idx) => row[idx] ? row[idx].replace(/\\n/g, '\n').trim() : "";
             const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
+
+            // 預期欄位結構:
+            // 0:Date, 1:Highlight, 
+            // 2:Cloud_Title, 3:Cloud_Detail, 4:Cloud_Status, 5:Cloud_Note
+            // 6:Hosp_Title, 7:Hosp_Detail, 8:Hosp_Status, 9:Hosp_Note
+            // 10:Event
 
             let cloudObj = null;
             if (safeGet(2) || safeGet(3)) {
-                cloudObj = { l1: cleanText(safeGet(2)), l2: cleanText(safeGet(3)) };
+                cloudObj = { 
+                    l1: safeGet(2), l2: safeGet(3), 
+                    status: safeGet(4), note: safeGet(5) 
+                };
             }
 
             let hospObj = null;
-            if (safeGet(4) || safeGet(5)) {
-                hospObj = { l1: cleanText(safeGet(4)), l2: cleanText(safeGet(5)) };
+            if (safeGet(6) || safeGet(7)) {
+                hospObj = { 
+                    l1: safeGet(6), l2: safeGet(7), 
+                    status: safeGet(8), note: safeGet(9) 
+                };
             }
 
             return {
@@ -393,9 +418,48 @@
                 highlight: isHighlight,
                 cloud: cloudObj,
                 hosp: hospObj,
-                event: cleanText(safeGet(6))
+                event: safeGet(10)
             };
         });
+    }
+
+    function getStatusClass(statusText) {
+        if (!statusText) return 'status-gray'; // 預設灰燈
+        if (statusText.includes('尚未開始')) return 'status-gray';
+        if (statusText.includes('討論分析')) return 'status-yellow';
+        if (statusText.includes('開始進行')) return 'status-red';
+        if (statusText.includes('如期完成')) return 'status-green';
+        return 'status-gray';
+    }
+
+    function createDetailHtml(detailText, statusText, noteText) {
+        if (!detailText) return "&nbsp;";
+        
+        const statusClass = getStatusClass(statusText);
+        
+        // 備註按鈕邏輯
+        let noteHtml = '';
+        if (noteText) {
+            // 有備註：顯示亮燈按鈕與氣泡
+            noteHtml = `
+                <button class="note-btn has-note" onclick="toggleNote(this)">📝</button>
+                <div class="note-popover">
+                    <strong>詳細說明：</strong>
+                    ${noteText}
+                </div>`;
+        } else {
+            // 無備註：顯示隱藏的灰色按鈕 (或完全不顯示，這裡選擇完全不顯示保持版面乾淨)
+            // 如果希望顯示灰色按鈕，可取消下行註解
+            // noteHtml = '<button class="note-btn" style="cursor:default">📄</button>';
+        }
+
+        return `
+            <div class="l2-wrapper">
+                <div class="status-dot ${statusClass}" title="${statusText || '狀態未定'}"></div>
+                <div class="l2-detail">${detailText}</div>
+                ${noteHtml}
+            </div>
+        `;
     }
 
     function renderTimeline(data) {
@@ -411,12 +475,7 @@
             let mergedTitleHtml = '';
             let leftContentHtml = '';
             let rightContentHtml = '';
-
-            let eventHtml = '';
-            if (item.event) {
-                eventHtml = `<div class="important-event-mini">${item.event}</div>`;
-            }
-
+            let eventHtml = item.event ? `<div class="important-event-mini">${item.event}</div>` : '';
             const mergedClass = item.highlight ? 'highlight-style' : ''; 
             const cardTitleClass = item.highlight ? 'highlight-text' : '';
 
@@ -426,37 +485,30 @@
                         <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
                     </div>`;
                 
-                const leftL2 = item.cloud.l2 ? item.cloud.l2 : "&nbsp;";
-                const rightL2 = item.hosp.l2 ? item.hosp.l2 : "&nbsp;";
-
                 leftContentHtml = `
                     <div class="task-card">
-                        <div class="l2-detail">${leftL2}</div>
+                        ${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}
                     </div>`;
                 rightContentHtml = `
                     <div class="task-card">
-                        <div class="l2-detail">${rightL2}</div>
+                        ${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}
                     </div>`;
             } else {
                 if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
                     leftContentHtml = `
                         <div class="task-card">
                             <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
-                            <div class="l2-detail">${item.cloud.l2}</div>
+                            ${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}
                         </div>`;
-                } else {
-                    leftContentHtml = `<div class="empty-space"></div>`;
-                }
+                } else { leftContentHtml = `<div class="empty-space"></div>`; }
 
                 if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
                     rightContentHtml = `
                         <div class="task-card">
                             <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
-                            <div class="l2-detail">${item.hosp.l2}</div>
+                            ${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}
                         </div>`;
-                } else {
-                    rightContentHtml = `<div class="empty-space"></div>`;
-                }
+                } else { rightContentHtml = `<div class="empty-space"></div>`; }
             }
 
             row.innerHTML = `
@@ -468,22 +520,36 @@
                     <div class="col-block right">${rightContentHtml}</div>
                 </div>
             `;
-
             container.appendChild(row);
         });
 
+        // 動畫偵測
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('visible');
             });
         }, { threshold: 0.1 });
-
-        document.querySelectorAll('.timeline-row').forEach(item => {
-            observer.observe(item);
-        });
+        document.querySelectorAll('.timeline-row').forEach(item => observer.observe(item));
     }
+
+    // 全域功能：切換備註氣泡
+    window.toggleNote = function(btn) {
+        // 先關閉其他所有氣泡 (若希望一次只開一個)
+        document.querySelectorAll('.note-popover.show').forEach(el => {
+            if (el !== btn.nextElementSibling) el.classList.remove('show');
+        });
+        
+        const popover = btn.nextElementSibling;
+        popover.classList.toggle('show');
+        
+        // 點擊別處關閉
+        event.stopPropagation();
+    };
+
+    // 點擊空白處關閉所有氣泡
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.note-popover.show').forEach(el => el.classList.remove('show'));
+    });
 </script>
 
 </body>
