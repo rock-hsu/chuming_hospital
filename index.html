@@ -70,24 +70,21 @@
         header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
         header.main-title p { color: #666; margin-bottom: 15px; }
 
-        /* --- 新增：狀態圖例 (Legend) --- */
+        /* --- 狀態圖例 (Legend) --- */
         .status-legend {
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px; /* 每個項目之間的距離 */
+            gap: 20px;
             font-size: 0.95rem;
             color: #555;
             padding-top: 10px;
-            border-top: 1px dashed #eee; /* 上方加一條虛線分隔 */
+            border-top: 1px dashed #eee; 
             width: fit-content;
-            margin: 0 auto; /* 置中 */
+            margin: 0 auto; 
         }
-        .legend-item {
-            display: flex;
-            align-items: center;
-        }
+        .legend-item { display: flex; align-items: center; }
         .legend-dot {
             width: 12px; height: 12px;
             border-radius: 50%;
@@ -230,72 +227,54 @@
             border-left: 4px solid var(--highlight-border);
         }
 
-        /* --- 燈號與備註功能區塊 --- */
+        /* --- 多行細項區塊 --- */
         
-        .l2-wrapper {
-            display: flex;
-            align-items: flex-start;
-            position: relative;
+        .l2-container {
+            display: flex; flex-direction: column; gap: 8px; 
+        }
+
+        .l2-row-item {
+            display: flex; align-items: flex-start; position: relative; line-height: 1.6;
         }
 
         .status-dot {
             flex-shrink: 0;
-            width: 12px; height: 12px;
+            width: 10px; height: 10px;
             border-radius: 50%;
-            margin-top: 6px;
-            margin-right: 10px;
+            margin-top: 7px; margin-right: 10px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             border: 1px solid rgba(0,0,0,0.1);
         }
         .status-gray { background-color: var(--status-gray); }
         .status-yellow { background-color: var(--status-yellow); }
-        .status-red { background-color: var(--status-red); box-shadow: 0 0 5px var(--status-red); }
-        .status-green { background-color: var(--status-green); box-shadow: 0 0 5px var(--status-green); }
+        .status-red { background-color: var(--status-red); box-shadow: 0 0 4px var(--status-red); }
+        .status-green { background-color: var(--status-green); box-shadow: 0 0 4px var(--status-green); }
 
-        .l2-detail {
-            font-size: 1rem; color: var(--text-sub);
-            white-space: pre-line; line-height: 1.6;
-            flex-grow: 1;
+        .l2-text {
+            font-size: 1rem; color: var(--text-sub); flex-grow: 1;
         }
 
         .note-btn {
-            flex-shrink: 0;
-            cursor: pointer;
-            margin-left: 8px;
-            margin-top: 4px;
-            color: #888;
-            font-size: 1.1rem;
-            opacity: 0.6;
-            transition: all 0.2s;
-            border: none; background: none; padding: 0;
+            flex-shrink: 0; cursor: pointer;
+            margin-left: 8px; margin-top: 4px;
+            color: #888; font-size: 1.1rem; opacity: 0.6;
+            transition: all 0.2s; border: none; background: none; padding: 0;
         }
         .note-btn.has-note {
-            color: #0d6efd; 
-            opacity: 1;
-            animation: pulse-note 2s infinite;
+            color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite;
         }
         .note-btn:hover { transform: scale(1.1); opacity: 1; }
 
         @keyframes pulse-note {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); }
         }
 
         .note-popover {
-            display: none; 
-            position: absolute;
-            bottom: 100%; right: 0;
-            width: 250px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 100;
-            font-size: 0.9rem;
-            color: #555;
-            text-align: left;
+            display: none; position: absolute;
+            bottom: 100%; right: 0; width: 250px;
+            background-color: #fff; border: 1px solid #ccc; border-radius: 8px;
+            padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100; font-size: 0.9rem; color: #555; text-align: left;
             margin-bottom: 10px;
         }
         .note-popover.show { display: block; animation: fade-in 0.2s; }
@@ -329,8 +308,6 @@
             .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px; border-radius: 10px;}
             .merged-title-container { justify-content: flex-start; }
             .highlight-style { transform: none; width: calc(100% - 35px); }
-            
-            /* 手機版圖例調整 */
             .status-legend { flex-wrap: wrap; gap: 10px; padding: 0 10px; }
         }
     </style>
@@ -385,6 +362,7 @@
         }
     }
 
+    // ★★★ 核心升級：支援「空行合併」的 CSV 解析器 ★★★
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         
@@ -393,6 +371,7 @@
         let currentVal = '';
         let insideQuote = false;
         
+        // 1. 先把 CSV 解析成二維陣列
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
             const nextChar = text[i + 1];
@@ -412,40 +391,81 @@
             currentRow.push(currentVal.trim()); rows.push(currentRow);
         }
 
-        const dataRows = rows.slice(1); 
+        const dataRows = rows.slice(1); // 移除標題列
+        const processedItems = [];
+        let lastItem = null; // 用來記錄上一個有效的專案卡片
 
-        return dataRows.map(row => {
-            const safeGet = (idx) => row[idx] ? row[idx].replace(/\\n/g, '\n').trim() : "";
-            const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
+        // 2. 逐行處理，執行「合併」邏輯
+        dataRows.forEach(row => {
+            const safeGet = (idx) => row[idx] ? row[idx].trim() : "";
+            
+            // 判斷是否為「新的一張卡片」 (有日期 或 有標題)
+            // 假設第0欄是日期, 第2欄是雲行標題, 第6欄是竹銘標題
+            const hasDate = !!safeGet(0);
+            const hasCloudTitle = !!safeGet(2);
+            const hasHospTitle = !!safeGet(6);
+            const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
 
-            let cloudObj = null;
-            if (safeGet(2) || safeGet(3)) {
-                cloudObj = { 
-                    l1: safeGet(2), l2: safeGet(3), 
-                    status: safeGet(4), note: safeGet(5) 
+            if (isNewCard) {
+                // --- 建立新卡片 ---
+                const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
+                
+                let cloudObj = null;
+                // 即使標題空，若有內容也要建物件
+                if (safeGet(2) || safeGet(3)) {
+                    cloudObj = { 
+                        l1: safeGet(2), l2: safeGet(3), 
+                        status: safeGet(4), note: safeGet(5) 
+                    };
+                }
+
+                let hospObj = null;
+                if (safeGet(6) || safeGet(7)) {
+                    hospObj = { 
+                        l1: safeGet(6), l2: safeGet(7), 
+                        status: safeGet(8), note: safeGet(9) 
+                    };
+                }
+
+                lastItem = {
+                    date: safeGet(0),
+                    highlight: isHighlight,
+                    cloud: cloudObj,
+                    hosp: hospObj,
+                    event: safeGet(10).replace(/\\n/g, '\n')
                 };
-            }
+                processedItems.push(lastItem);
 
-            let hospObj = null;
-            if (safeGet(6) || safeGet(7)) {
-                hospObj = { 
-                    l1: safeGet(6), l2: safeGet(7), 
-                    status: safeGet(8), note: safeGet(9) 
-                };
-            }
+            } else {
+                // --- 接續上一張卡片 (合併內容) ---
+                if (lastItem) {
+                    // 若這行有雲行細節，就接在原本的細節後面 (用 \n 隔開)
+                    if (safeGet(3)) {
+                        if (!lastItem.cloud) lastItem.cloud = { l1: '', l2: '', status: '', note: '' };
+                        // 如果原本有值，補個換行符號再接新的；原本沒值就直接賦值
+                        lastItem.cloud.l2 += (lastItem.cloud.l2 ? '\n' : '') + safeGet(3);
+                        // 同步接續狀態與備註 (若這行沒填狀態，也補一個空行保持對齊)
+                        lastItem.cloud.status += '\n' + safeGet(4); 
+                        lastItem.cloud.note += '\n' + safeGet(5);
+                    }
 
-            return {
-                date: safeGet(0),
-                highlight: isHighlight,
-                cloud: cloudObj,
-                hosp: hospObj,
-                event: safeGet(10)
-            };
+                    // 竹銘同理
+                    if (safeGet(7)) {
+                        if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '' };
+                        lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(7);
+                        lastItem.hosp.status += '\n' + safeGet(8);
+                        lastItem.hosp.note += '\n' + safeGet(9);
+                    }
+                }
+            }
         });
+
+        return processedItems;
     }
 
     function getStatusClass(statusText) {
         if (!statusText) return 'status-gray';
+        // 處理可能包含 \n 的狀況 (雖然切割後傳進來的是單行)
         if (statusText.includes('尚未開始')) return 'status-gray';
         if (statusText.includes('討論分析')) return 'status-yellow';
         if (statusText.includes('開始進行')) return 'status-red';
@@ -453,28 +473,46 @@
         return 'status-gray';
     }
 
-    function createDetailHtml(detailText, statusText, noteText) {
-        if (!detailText) return "&nbsp;";
-        
-        const statusClass = getStatusClass(statusText);
-        
-        let noteHtml = '';
-        if (noteText) {
-            noteHtml = `
-                <button class="note-btn has-note" onclick="toggleNote(this)">📝</button>
-                <div class="note-popover">
-                    <strong>詳細說明：</strong>
-                    ${noteText}
-                </div>`;
-        } 
+    function createDetailHtml(detailRaw, statusRaw, noteRaw) {
+        if (!detailRaw) return "&nbsp;";
 
-        return `
-            <div class="l2-wrapper">
-                <div class="status-dot ${statusClass}" title="${statusText || '狀態未定'}"></div>
-                <div class="l2-detail">${detailText}</div>
-                ${noteHtml}
-            </div>
-        `;
+        // 資料現在已經透過 \n (或是 Alt+Enter) 合併在一起了，統一用 \n 切割
+        const details = detailRaw.split(/\r?\n/);
+        // 狀態與備註如果比細節少，就用空陣列補，避免報錯
+        const statuses = statusRaw ? statusRaw.split(/\r?\n/) : [];
+        const notes = noteRaw ? noteRaw.split(/\r?\n/) : [];
+
+        let htmlLines = '';
+
+        details.forEach((lineText, index) => {
+            // 如果這行真的完全沒字，通常會跳過，但為了排版對齊，有時候需要保留
+            // 這裡邏輯：只要該行有文字就顯示
+            if (!lineText.trim()) return;
+
+            const currentStatus = statuses[index] || '';
+            const currentNote = notes[index] || '';
+            
+            const statusClass = getStatusClass(currentStatus);
+
+            let noteBtnHtml = '';
+            if (currentNote && currentNote.trim()) {
+                noteBtnHtml = `
+                    <button class="note-btn has-note" onclick="toggleNote(this)">📝</button>
+                    <div class="note-popover">
+                        <strong>說明：</strong>
+                        ${currentNote.replace(/\n/g, '<br>')}
+                    </div>`;
+            }
+
+            htmlLines += `
+                <div class="l2-row-item">
+                    <div class="status-dot ${statusClass}" title="${currentStatus || '狀態未定'}"></div>
+                    <div class="l2-text">${lineText}</div>
+                    ${noteBtnHtml}
+                </div>`;
+        });
+
+        return `<div class="l2-container">${htmlLines}</div>`;
     }
 
     function renderTimeline(data) {
