@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>竹銘醫院資訊系統時程管理</title>
+    <title>竹銘醫院資訊系統時程規劃</title>
     <style>
         :root {
             /* --- 色彩調整區 --- */
@@ -107,7 +107,6 @@
         .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
         
         .summary-content {
-            /* ★★★ 修改 1：調整上下 Padding (上縮小、下加大) ★★★ */
             padding: 10px 0 60px; 
             overflow-x: auto;
             white-space: nowrap;
@@ -135,18 +134,12 @@
             display: inline-flex; flex-direction: column;
             align-items: center; justify-content: center;
             position: relative; 
-            /* ★★★ 修改 2：統一所有節點的 margin 與 min-width ★★★ */
             margin: 0 5px; 
             min-width: 60px; 
-            
-            /* 微調節點高度，讓內容更緊湊 */
             height: 580px; 
             vertical-align: middle;
             transition: min-width 0.3s ease;
         }
-
-        /* ★★★ 修改 2：移除 Highlight 節點的額外寬度設定，確保間距一致 ★★★ */
-        /* .fb-node.highlight-node-container { min-width: 90px; margin: 0 10px; }  <-- 移除此行 */
 
         /* 年份大節點 */
         .fb-node.year-marker {
@@ -371,6 +364,14 @@
         .note-btn.has-note { color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite; }
         @keyframes pulse-note { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
+        /* 連結按鈕 */
+        .link-btn {
+            flex-shrink: 0; cursor: pointer; margin-left: 5px; margin-top: 4px;
+            font-size: 1.2rem; text-decoration: none; color: #5bc0de;
+            opacity: 0.7; transition: all 0.2s; display: inline-block;
+        }
+        .link-btn:hover { opacity: 1; transform: scale(1.2); color: #17a2b8; }
+
         .note-popover {
             display: none; position: absolute; bottom: 100%; right: 0; width: 250px;
             background-color: #fff; border: 1px solid #ccc; border-radius: 8px;
@@ -413,7 +414,7 @@
 <div id="backToTop" onclick="scrollToTop()">▲</div>
 
 <header class="main-title" id="topHeader">
-    <h1>竹銘醫院資訊系統時程管理</h1>
+    <h1>竹銘醫院資訊系統時程規劃</h1>
     
     <div class="status-legend">
         <div class="legend-item"><span class="legend-dot status-gray"></span>尚未開始</div>
@@ -529,40 +530,56 @@
             const safeGet = (idx) => row[idx] ? row[idx].trim() : "";
             const hasDate = !!safeGet(0);
             const hasCloudTitle = !!safeGet(2);
-            const hasHospTitle = !!safeGet(6);
+            const hasHospTitle = !!safeGet(7); // 竹銘標題在 H 欄 (index 7)
             const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
 
             if (isNewCard) {
                 const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
                 let cloudObj = null;
+                // Cloud 欄位: Title=2, Detail=3, Status=4, Note=5, Link=6 (G欄)
                 if (safeGet(2) || safeGet(3)) {
-                    cloudObj = { l1: safeGet(2), l2: safeGet(3), status: safeGet(4), note: safeGet(5) };
+                    cloudObj = { 
+                        l1: safeGet(2), 
+                        l2: safeGet(3), 
+                        status: safeGet(4), 
+                        note: safeGet(5),
+                        link: safeGet(6) // 新增 Link
+                    };
                 }
                 let hospObj = null;
-                if (safeGet(6) || safeGet(7)) {
-                    hospObj = { l1: safeGet(6), l2: safeGet(7), status: safeGet(8), note: safeGet(9) };
+                // Hosp 欄位: Title=7, Detail=8, Status=9, Note=10, Link=11 (L欄)
+                if (safeGet(7) || safeGet(8)) {
+                    hospObj = { 
+                        l1: safeGet(7), 
+                        l2: safeGet(8), 
+                        status: safeGet(9), 
+                        note: safeGet(10),
+                        link: safeGet(11) // 新增 Link
+                    };
                 }
                 lastItem = {
                     date: safeGet(0),
                     highlight: isHighlight,
                     cloud: cloudObj,
                     hosp: hospObj,
-                    event: safeGet(10).replace(/\\n/g, '\n')
+                    event: safeGet(12).replace(/\\n/g, '\n') // Event 在 M 欄 (index 12)
                 };
                 processedItems.push(lastItem);
             } else {
                 if (lastItem) {
                     if (safeGet(3)) {
-                        if (!lastItem.cloud) lastItem.cloud = { l1: '', l2: '', status: '', note: '' };
+                        if (!lastItem.cloud) lastItem.cloud = { l1: '', l2: '', status: '', note: '', link: '' };
                         lastItem.cloud.l2 += (lastItem.cloud.l2 ? '\n' : '') + safeGet(3);
                         lastItem.cloud.status += '\n' + safeGet(4); 
                         lastItem.cloud.note += '\n' + safeGet(5);
+                        lastItem.cloud.link += '\n' + safeGet(6);
                     }
-                    if (safeGet(7)) {
-                        if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '' };
-                        lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(7);
-                        lastItem.hosp.status += '\n' + safeGet(8);
-                        lastItem.hosp.note += '\n' + safeGet(9);
+                    if (safeGet(8)) {
+                        if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '', link: '' };
+                        lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(8);
+                        lastItem.hosp.status += '\n' + safeGet(9);
+                        lastItem.hosp.note += '\n' + safeGet(10);
+                        lastItem.hosp.link += '\n' + safeGet(11);
                     }
                 }
             }
@@ -599,7 +616,7 @@
             }
 
             const node = document.createElement('div');
-            // ★★★ 修改 2：全部統一為標準樣式，確保間距一致 ★★★
+            // 統一寬度，確保整齊
             node.className = 'fb-node';
 
             const dateParts = item.date.split(/[./-]/);
@@ -657,28 +674,45 @@
         return html;
     }
 
-    function createDetailHtml(detailRaw, statusRaw, noteRaw) {
+    // 渲染詳細時間軸 (新增連結按鈕)
+    function createDetailHtml(detailRaw, statusRaw, noteRaw, linkRaw) {
         if (!detailRaw) return "&nbsp;";
         const details = detailRaw.split(/\r?\n/);
         const statuses = statusRaw ? statusRaw.split(/\r?\n/) : [];
         const notes = noteRaw ? noteRaw.split(/\r?\n/) : [];
+        const links = linkRaw ? linkRaw.split(/\r?\n/) : [];
+
         let htmlLines = '';
         details.forEach((lineText, index) => {
             if (!lineText.trim()) return;
             const currentStatus = statuses[index] || '';
             const currentNote = notes[index] || '';
+            const currentLink = links[index] || '';
+            
             const statusClass = getStatusClass(currentStatus);
+            
+            // 備註按鈕
             let noteBtnHtml = '';
             if (currentNote && currentNote.trim()) {
                 noteBtnHtml = `
                     <button class="note-btn has-note" onclick="toggleNote(this)">📝</button>
                     <div class="note-popover"><strong>說明：</strong>${currentNote.replace(/\n/g, '<br>')}</div>`;
             }
+
+            // 雲端連結按鈕
+            let linkBtnHtml = '';
+            if (currentLink && currentLink.trim()) {
+                linkBtnHtml = `
+                    <a href="${currentLink.trim()}" target="_blank" class="link-btn" title="查看線上資料">☁️</a>
+                `;
+            }
+
             htmlLines += `
                 <div class="l2-row-item">
                     <div class="status-dot ${statusClass}" title="${currentStatus || '狀態未定'}"></div>
                     <div class="l2-text">${lineText}</div>
                     ${noteBtnHtml}
+                    ${linkBtnHtml}
                 </div>`;
         });
         return `<div class="l2-container">${htmlLines}</div>`;
@@ -702,14 +736,14 @@
 
             if (isMerged) {
                 mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${item.cloud.l1}</div></div>`;
-                leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}</div>`;
-                rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}</div>`;
+                leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
+                rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
             } else {
                 if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
-                    leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}</div>`;
+                    leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
                 } else { leftContentHtml = `<div class="empty-space"></div>`; }
                 if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
-                    rightContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}</div>`;
+                    rightContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
                 } else { rightContentHtml = `<div class="empty-space"></div>`; }
             }
             row.innerHTML = `<div class="date-badge">${item.date}</div>${eventHtml}${mergedTitleHtml}<div class="content-grid"><div class="col-block left">${leftContentHtml}</div><div class="col-block right">${rightContentHtml}</div></div>`;
