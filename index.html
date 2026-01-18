@@ -61,23 +61,23 @@
         header.main-title {
             background: #fff;
             text-align: center;
-            padding: 2rem 1rem;
+            padding: 2rem 1rem 1rem;
             border-bottom: 1px solid #ccc;
             position: relative;
             z-index: 10;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         header.main-title h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #333; }
         header.main-title p { color: #666; margin-bottom: 15px; }
 
-        /* --- 狀態圖例 (Legend) --- */
+        /* --- 狀態圖例 --- */
         .status-legend {
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #555;
             padding-top: 10px;
             border-top: 1px dashed #eee; 
@@ -92,6 +92,203 @@
             display: inline-block;
         }
 
+        /* =========================================
+           新功能：魚骨圖總表 (Fishbone Summary)
+           ========================================= */
+        
+        .summary-wrapper {
+            background: #fff;
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+            z-index: 9;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        /* 收合按鈕列 */
+        .summary-toggle-bar {
+            text-align: center;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #ddd;
+            padding: 5px 0;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: bold;
+            user-select: none;
+        }
+        .summary-toggle-bar:hover { background: #e9ecef; color: #333; }
+        .summary-toggle-bar .arrow { display: inline-block; transition: transform 0.3s; }
+        .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
+        .summary-wrapper.collapsed .arrow { transform: rotate(-90deg); }
+
+        /* 橫向捲動容器 */
+        .summary-content {
+            padding: 40px 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            /* 自訂捲軸樣式 */
+            scrollbar-width: thin;
+            scrollbar-color: #aaa #f1f1f1;
+            height: auto;
+            opacity: 1;
+            transition: height 0.3s, opacity 0.3s;
+        }
+        .summary-content::-webkit-scrollbar { height: 8px; }
+        .summary-content::-webkit-scrollbar-track { background: #f1f1f1; }
+        .summary-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
+        .summary-content::-webkit-scrollbar-thumb:hover { background: #888; }
+
+        /* 魚骨圖 Flex 佈局 */
+        .fishbone-chart {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            min-width: 100%;
+            padding-bottom: 20px; /* 預留捲軸空間 */
+        }
+        
+        /* 中央貫穿線 */
+        .fishbone-chart::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--timeline-line);
+            z-index: 0;
+            border-radius: 2px;
+        }
+
+        /* 單個節點 (時間點) */
+        .fb-node {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 15px; /* 節點間距 */
+            min-width: 140px; /* 每個節點的最小寬度 */
+            height: 280px; /* 整體高度，確保上下有空間 */
+            vertical-align: middle;
+        }
+
+        /* 中央日期球 */
+        .fb-date {
+            background: #4a5568;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            z-index: 2;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 3px #fff;
+        }
+
+        /* 上半部 (雲行) */
+        .fb-top {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding-bottom: 30px; /* 距離中線的高度 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+        }
+        /* 連接線 (上) */
+        .fb-top::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: var(--header-left); /* 藍色線 */
+        }
+
+        /* 下半部 (竹銘) */
+        .fb-bottom {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding-top: 30px; /* 距離中線的高度 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+        }
+        /* 連接線 (下) */
+        .fb-bottom::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: var(--header-right); /* 綠色線 */
+        }
+
+        /* 內容卡片 */
+        .fb-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 180px;
+            position: relative;
+            z-index: 3;
+            white-space: normal; /* 讓標題換行 */
+        }
+        .fb-top .fb-card { border-top: 3px solid var(--header-left); }
+        .fb-bottom .fb-card { border-top: 3px solid var(--header-right); }
+
+        .fb-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        /* 燈號容器 */
+        .fb-dots {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .mini-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* 手機版調整 */
+        @media screen and (max-width: 768px) {
+            .fb-node { min-width: 120px; margin: 0 5px; }
+            .fb-card { padding: 5px; font-size: 0.8rem; }
+            .fb-title { font-size: 0.8rem; }
+        }
+
+        /* =========================================
+           原有的 CSS 樣式 (保持不變)
+           ========================================= */
         .sticky-col-headers {
             position: sticky;
             top: 0;
@@ -228,14 +425,8 @@
         }
 
         /* --- 多行細項區塊 --- */
-        
-        .l2-container {
-            display: flex; flex-direction: column; gap: 8px; 
-        }
-
-        .l2-row-item {
-            display: flex; align-items: flex-start; position: relative; line-height: 1.6;
-        }
+        .l2-container { display: flex; flex-direction: column; gap: 8px; }
+        .l2-row-item { display: flex; align-items: flex-start; position: relative; line-height: 1.6; }
 
         .status-dot {
             flex-shrink: 0;
@@ -250,9 +441,7 @@
         .status-red { background-color: var(--status-red); box-shadow: 0 0 4px var(--status-red); }
         .status-green { background-color: var(--status-green); box-shadow: 0 0 4px var(--status-green); }
 
-        .l2-text {
-            font-size: 1rem; color: var(--text-sub); flex-grow: 1;
-        }
+        .l2-text { font-size: 1rem; color: var(--text-sub); flex-grow: 1; }
 
         .note-btn {
             flex-shrink: 0; cursor: pointer;
@@ -260,14 +449,10 @@
             color: #888; font-size: 1.1rem; opacity: 0.6;
             transition: all 0.2s; border: none; background: none; padding: 0;
         }
-        .note-btn.has-note {
-            color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite;
-        }
+        .note-btn.has-note { color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite; }
         .note-btn:hover { transform: scale(1.1); opacity: 1; }
 
-        @keyframes pulse-note {
-            0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); }
-        }
+        @keyframes pulse-note { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         .note-popover {
             display: none; position: absolute;
@@ -287,7 +472,6 @@
         .note-popover strong { display: block; margin-bottom: 5px; color: #333; }
         
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
         .empty-space { height: 1px; }
 
         @media screen and (max-width: 768px) {
@@ -309,6 +493,12 @@
             .merged-title-container { justify-content: flex-start; }
             .highlight-style { transform: none; width: calc(100% - 35px); }
             .status-legend { flex-wrap: wrap; gap: 10px; padding: 0 10px; }
+            
+            /* 手機上魚骨圖可捲動提示 */
+            .summary-content::after {
+                content: '← 左右滑動查看更多 →';
+                display: block; text-align: center; color: #999; font-size: 0.8rem; margin-top: 10px; width: 100%;
+            }
         }
     </style>
 </head>
@@ -318,8 +508,6 @@
     <div>讀取專案進度中...</div>
     <span>(若很久沒反應，請檢查 Google Sheet 欄位是否已更新)</span>
 </div>
-
-<div class="split-background"></div>
 
 <header class="main-title">
     <h1>竹銘醫院資訊系統時程管理</h1>
@@ -332,6 +520,18 @@
         <div class="legend-item"><span class="legend-dot status-green"></span>如期完成</div>
     </div>
 </header>
+
+<div class="summary-wrapper" id="summaryWrapper">
+    <div class="summary-toggle-bar" onclick="toggleSummary()">
+        <span class="arrow">▼</span> 整體狀態進度總覽 (點擊收合/展開) <span class="arrow">▼</span>
+    </div>
+    <div class="summary-content">
+        <div class="fishbone-chart" id="fishboneChart">
+            </div>
+    </div>
+</div>
+
+<div class="split-background"></div>
 
 <div class="sticky-col-headers">
     <div class="header-col left"><span class="icon">☁️</span> 雲行自主與任務</div>
@@ -348,13 +548,25 @@
         fetchAndRender(GOOGLE_SHEET_CSV_URL);
     });
 
+    // 切換魚骨圖展開/收合
+    function toggleSummary() {
+        const wrapper = document.getElementById('summaryWrapper');
+        wrapper.classList.toggle('collapsed');
+    }
+
     async function fetchAndRender(url) {
         try {
             const response = await fetch(url + "&t=" + new Date().getTime());
             if (!response.ok) throw new Error("網路讀取失敗");
             const csvText = await response.text();
             const data = parseCSV(csvText);
+            
+            // 渲染下方的詳細時間軸
             renderTimeline(data);
+            
+            // 渲染上方的魚骨圖總表
+            renderFishbone(data);
+            
             document.getElementById('loading').style.display = 'none';
         } catch (error) {
             console.error(error);
@@ -362,16 +574,14 @@
         }
     }
 
-    // ★★★ 核心升級：支援「空行合併」的 CSV 解析器 ★★★
+    // CSV 解析邏輯 (保持不變)
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-        
         const rows = [];
         let currentRow = [];
         let currentVal = '';
         let insideQuote = false;
         
-        // 1. 先把 CSV 解析成二維陣列
         for (let i = 0; i < text.length; i++) {
             const char = text[i];
             const nextChar = text[i + 1];
@@ -391,42 +601,27 @@
             currentRow.push(currentVal.trim()); rows.push(currentRow);
         }
 
-        const dataRows = rows.slice(1); // 移除標題列
+        const dataRows = rows.slice(1); 
         const processedItems = [];
-        let lastItem = null; // 用來記錄上一個有效的專案卡片
+        let lastItem = null; 
 
-        // 2. 逐行處理，執行「合併」邏輯
         dataRows.forEach(row => {
             const safeGet = (idx) => row[idx] ? row[idx].trim() : "";
-            
-            // 判斷是否為「新的一張卡片」 (有日期 或 有標題)
-            // 假設第0欄是日期, 第2欄是雲行標題, 第6欄是竹銘標題
             const hasDate = !!safeGet(0);
             const hasCloudTitle = !!safeGet(2);
             const hasHospTitle = !!safeGet(6);
             const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
 
             if (isNewCard) {
-                // --- 建立新卡片 ---
                 const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
-                
                 let cloudObj = null;
-                // 即使標題空，若有內容也要建物件
                 if (safeGet(2) || safeGet(3)) {
-                    cloudObj = { 
-                        l1: safeGet(2), l2: safeGet(3), 
-                        status: safeGet(4), note: safeGet(5) 
-                    };
+                    cloudObj = { l1: safeGet(2), l2: safeGet(3), status: safeGet(4), note: safeGet(5) };
                 }
-
                 let hospObj = null;
                 if (safeGet(6) || safeGet(7)) {
-                    hospObj = { 
-                        l1: safeGet(6), l2: safeGet(7), 
-                        status: safeGet(8), note: safeGet(9) 
-                    };
+                    hospObj = { l1: safeGet(6), l2: safeGet(7), status: safeGet(8), note: safeGet(9) };
                 }
-
                 lastItem = {
                     date: safeGet(0),
                     highlight: isHighlight,
@@ -435,21 +630,14 @@
                     event: safeGet(10).replace(/\\n/g, '\n')
                 };
                 processedItems.push(lastItem);
-
             } else {
-                // --- 接續上一張卡片 (合併內容) ---
                 if (lastItem) {
-                    // 若這行有雲行細節，就接在原本的細節後面 (用 \n 隔開)
                     if (safeGet(3)) {
                         if (!lastItem.cloud) lastItem.cloud = { l1: '', l2: '', status: '', note: '' };
-                        // 如果原本有值，補個換行符號再接新的；原本沒值就直接賦值
                         lastItem.cloud.l2 += (lastItem.cloud.l2 ? '\n' : '') + safeGet(3);
-                        // 同步接續狀態與備註 (若這行沒填狀態，也補一個空行保持對齊)
                         lastItem.cloud.status += '\n' + safeGet(4); 
                         lastItem.cloud.note += '\n' + safeGet(5);
                     }
-
-                    // 竹銘同理
                     if (safeGet(7)) {
                         if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '' };
                         lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(7);
@@ -459,13 +647,11 @@
                 }
             }
         });
-
         return processedItems;
     }
 
     function getStatusClass(statusText) {
         if (!statusText) return 'status-gray';
-        // 處理可能包含 \n 的狀況 (雖然切割後傳進來的是單行)
         if (statusText.includes('尚未開始')) return 'status-gray';
         if (statusText.includes('討論分析')) return 'status-yellow';
         if (statusText.includes('開始進行')) return 'status-red';
@@ -473,37 +659,95 @@
         return 'status-gray';
     }
 
+    // ★★★ 新增：渲染魚骨圖總表 ★★★
+    function renderFishbone(data) {
+        const chartContainer = document.getElementById('fishboneChart');
+        chartContainer.innerHTML = '';
+
+        data.forEach(item => {
+            // 如果該節點沒有日期，通常不適合放在時間軸上，或者可以顯示為待定
+            if (!item.date) return;
+
+            const node = document.createElement('div');
+            node.className = 'fb-node';
+
+            // 日期球
+            const dateEl = document.createElement('div');
+            dateEl.className = 'fb-date';
+            dateEl.textContent = item.date.replace(/\.\d{4}/, ''); // 簡化日期顯示 (視需求)
+            dateEl.textContent = item.date;
+            node.appendChild(dateEl);
+
+            // 上半部 (Cloud)
+            if (item.cloud && item.cloud.l1) {
+                const topWrapper = document.createElement('div');
+                topWrapper.className = 'fb-top';
+                
+                // 產生燈號 HTML
+                const dotsHtml = generateDotsHtml(item.cloud.status);
+                
+                topWrapper.innerHTML = `
+                    <div class="fb-card">
+                        <div class="fb-title">${item.cloud.l1}</div>
+                        <div class="fb-dots">${dotsHtml}</div>
+                    </div>
+                `;
+                node.appendChild(topWrapper);
+            }
+
+            // 下半部 (Hosp)
+            if (item.hosp && item.hosp.l1) {
+                const bottomWrapper = document.createElement('div');
+                bottomWrapper.className = 'fb-bottom';
+                
+                // 產生燈號 HTML
+                const dotsHtml = generateDotsHtml(item.hosp.status);
+                
+                bottomWrapper.innerHTML = `
+                    <div class="fb-card">
+                        <div class="fb-title">${item.hosp.l1}</div>
+                        <div class="fb-dots">${dotsHtml}</div>
+                    </div>
+                `;
+                node.appendChild(bottomWrapper);
+            }
+
+            chartContainer.appendChild(node);
+        });
+    }
+
+    // 輔助函式：根據狀態字串生成小圓點
+    function generateDotsHtml(statusRaw) {
+        if (!statusRaw) return '';
+        const statuses = statusRaw.split(/\r?\n/);
+        let html = '';
+        statuses.forEach(s => {
+            // 跳過空行，除非您希望保留空燈號
+            if (!s.trim()) return;
+            const cls = getStatusClass(s);
+            html += `<span class="mini-dot ${cls}" title="${s}"></span>`;
+        });
+        return html;
+    }
+
+    // 詳細列表渲染 (保持不變)
     function createDetailHtml(detailRaw, statusRaw, noteRaw) {
         if (!detailRaw) return "&nbsp;";
-
-        // 資料現在已經透過 \n (或是 Alt+Enter) 合併在一起了，統一用 \n 切割
         const details = detailRaw.split(/\r?\n/);
-        // 狀態與備註如果比細節少，就用空陣列補，避免報錯
         const statuses = statusRaw ? statusRaw.split(/\r?\n/) : [];
         const notes = noteRaw ? noteRaw.split(/\r?\n/) : [];
-
         let htmlLines = '';
-
         details.forEach((lineText, index) => {
-            // 如果這行真的完全沒字，通常會跳過，但為了排版對齊，有時候需要保留
-            // 這裡邏輯：只要該行有文字就顯示
             if (!lineText.trim()) return;
-
             const currentStatus = statuses[index] || '';
             const currentNote = notes[index] || '';
-            
             const statusClass = getStatusClass(currentStatus);
-
             let noteBtnHtml = '';
             if (currentNote && currentNote.trim()) {
                 noteBtnHtml = `
                     <button class="note-btn has-note" onclick="toggleNote(this)">📝</button>
-                    <div class="note-popover">
-                        <strong>說明：</strong>
-                        ${currentNote.replace(/\n/g, '<br>')}
-                    </div>`;
+                    <div class="note-popover"><strong>說明：</strong>${currentNote.replace(/\n/g, '<br>')}</div>`;
             }
-
             htmlLines += `
                 <div class="l2-row-item">
                     <div class="status-dot ${statusClass}" title="${currentStatus || '狀態未定'}"></div>
@@ -511,20 +755,16 @@
                     ${noteBtnHtml}
                 </div>`;
         });
-
         return `<div class="l2-container">${htmlLines}</div>`;
     }
 
     function renderTimeline(data) {
         const container = document.getElementById('timeline');
         container.innerHTML = ''; 
-
         data.forEach(item => {
             const row = document.createElement('div');
             row.className = 'timeline-row';
-
             const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
-
             let mergedTitleHtml = '';
             let leftContentHtml = '';
             let rightContentHtml = '';
@@ -533,69 +773,33 @@
             const cardTitleClass = item.highlight ? 'highlight-text' : '';
 
             if (isMerged) {
-                mergedTitleHtml = `
-                    <div class="merged-title-container">
-                        <div class="merged-title ${mergedClass}">${item.cloud.l1}</div>
-                    </div>`;
-                
-                leftContentHtml = `
-                    <div class="task-card">
-                        ${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}
-                    </div>`;
-                rightContentHtml = `
-                    <div class="task-card">
-                        ${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}
-                    </div>`;
+                mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${item.cloud.l1}</div></div>`;
+                leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}</div>`;
+                rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}</div>`;
             } else {
                 if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
-                    leftContentHtml = `
-                        <div class="task-card">
-                            <div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>
-                            ${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}
-                        </div>`;
+                    leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note)}</div>`;
                 } else { leftContentHtml = `<div class="empty-space"></div>`; }
-
                 if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
-                    rightContentHtml = `
-                        <div class="task-card">
-                            <div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>
-                            ${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}
-                        </div>`;
+                    rightContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note)}</div>`;
                 } else { rightContentHtml = `<div class="empty-space"></div>`; }
             }
-
-            row.innerHTML = `
-                <div class="date-badge">${item.date}</div>
-                ${eventHtml}
-                ${mergedTitleHtml}
-                <div class="content-grid">
-                    <div class="col-block left">${leftContentHtml}</div>
-                    <div class="col-block right">${rightContentHtml}</div>
-                </div>
-            `;
+            row.innerHTML = `<div class="date-badge">${item.date}</div>${eventHtml}${mergedTitleHtml}<div class="content-grid"><div class="col-block left">${leftContentHtml}</div><div class="col-block right">${rightContentHtml}</div></div>`;
             container.appendChild(row);
         });
-
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('visible');
-            });
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
         }, { threshold: 0.1 });
         document.querySelectorAll('.timeline-row').forEach(item => observer.observe(item));
     }
 
     window.toggleNote = function(btn) {
-        document.querySelectorAll('.note-popover.show').forEach(el => {
-            if (el !== btn.nextElementSibling) el.classList.remove('show');
-        });
+        document.querySelectorAll('.note-popover.show').forEach(el => { if (el !== btn.nextElementSibling) el.classList.remove('show'); });
         const popover = btn.nextElementSibling;
         popover.classList.toggle('show');
         event.stopPropagation();
     };
-
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.note-popover.show').forEach(el => el.classList.remove('show'));
-    });
+    document.addEventListener('click', () => { document.querySelectorAll('.note-popover.show').forEach(el => el.classList.remove('show')); });
 </script>
 
 </body>
