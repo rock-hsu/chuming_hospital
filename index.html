@@ -35,6 +35,8 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
+        html { scroll-behavior: smooth; } /* 讓捲動有滑順效果 */
+
         body {
             font-family: "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
             color: var(--text-main);
@@ -72,405 +74,273 @@
 
         /* --- 狀態圖例 --- */
         .status-legend {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            font-size: 0.9rem;
-            color: #555;
-            padding-top: 10px;
-            border-top: 1px dashed #eee; 
-            width: fit-content;
-            margin: 0 auto; 
+            display: flex; justify-content: center; align-items: center;
+            flex-wrap: wrap; gap: 20px; font-size: 0.9rem; color: #555;
+            padding-top: 10px; border-top: 1px dashed #eee; 
+            width: fit-content; margin: 0 auto; 
         }
         .legend-item { display: flex; align-items: center; }
         .legend-dot {
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            margin-right: 6px;
-            display: inline-block;
+            width: 12px; height: 12px; border-radius: 50%;
+            margin-right: 6px; display: inline-block;
         }
 
         /* =========================================
-           新功能：魚骨圖總表 (Fishbone Summary)
+           魚骨圖總表 (Fishbone Summary)
            ========================================= */
-        
         .summary-wrapper {
-            background: #fff;
-            width: 100%;
-            border-bottom: 1px solid #ccc;
-            position: relative;
-            z-index: 9;
-            transition: all 0.3s ease;
-            overflow: hidden;
+            background: #fff; width: 100%; border-bottom: 1px solid #ccc;
+            position: relative; z-index: 9; transition: all 0.3s ease; overflow: hidden;
         }
         
-        /* 收合按鈕列 */
         .summary-toggle-bar {
-            text-align: center;
-            background: #f8f9fa;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #ddd;
-            padding: 5px 0;
-            cursor: pointer;
-            color: #666;
-            font-size: 0.9rem;
-            font-weight: bold;
-            user-select: none;
+            text-align: center; background: #f8f9fa;
+            border-top: 1px solid #eee; border-bottom: 1px solid #ddd;
+            padding: 5px 0; cursor: pointer; color: #666;
+            font-size: 0.9rem; font-weight: bold; user-select: none;
         }
         .summary-toggle-bar:hover { background: #e9ecef; color: #333; }
-        .summary-toggle-bar .arrow { display: inline-block; transition: transform 0.3s; }
         .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
-        .summary-wrapper.collapsed .arrow { transform: rotate(-90deg); }
-
-        /* 橫向捲動容器 */
+        
         .summary-content {
-            padding: 40px 20px;
+            padding: 20px 0 40px; /* 增加下方 padding 避免捲軸擋住內容 */
             overflow-x: auto;
             white-space: nowrap;
-            /* 自訂捲軸樣式 */
-            scrollbar-width: thin;
-            scrollbar-color: #aaa #f1f1f1;
-            height: auto;
-            opacity: 1;
-            transition: height 0.3s, opacity 0.3s;
+            scrollbar-width: thin; scrollbar-color: #aaa #f1f1f1;
+            height: auto; opacity: 1; transition: height 0.3s, opacity 0.3s;
         }
-        .summary-content::-webkit-scrollbar { height: 8px; }
+        .summary-content::-webkit-scrollbar { height: 10px; }
         .summary-content::-webkit-scrollbar-track { background: #f1f1f1; }
-        .summary-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
-        .summary-content::-webkit-scrollbar-thumb:hover { background: #888; }
+        .summary-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
 
-        /* 魚骨圖 Flex 佈局 */
         .fishbone-chart {
-            display: inline-flex;
-            align-items: center;
-            position: relative;
-            min-width: 100%;
-            padding-bottom: 20px; /* 預留捲軸空間 */
+            display: inline-flex; align-items: center;
+            position: relative; min-width: 100%;
+            padding: 0 40px; /* 兩側留白 */
         }
         
         /* 中央貫穿線 */
         .fishbone-chart::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--timeline-line);
-            z-index: 0;
-            border-radius: 2px;
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 4px;
+            background: var(--timeline-line); z-index: 0; border-radius: 2px;
         }
 
-        /* 單個節點 (時間點) */
+        /* 節點共用樣式 */
         .fb-node {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin: 0 15px; /* 節點間距 */
-            min-width: 140px; /* 每個節點的最小寬度 */
-            height: 280px; /* 整體高度，確保上下有空間 */
+            display: inline-flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative; margin: 0 5px; 
+            min-width: 60px; /* 縮小間距讓畫面塞更多 */
+            height: 380px; /* 拉高高度容納垂直文字 */
             vertical-align: middle;
         }
 
-        /* 中央日期球 */
+        /* 年份大節點 */
+        .fb-node.year-marker {
+            min-width: 100px;
+            margin: 0 20px;
+        }
+        .year-circle {
+            background: #333; color: #fff;
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 1.2rem;
+            z-index: 5; border: 4px solid #fff;
+            box-shadow: 0 0 0 2px #ccc;
+        }
+
+        /* 一般日期球 */
         .fb-date {
-            background: #4a5568;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            z-index: 2;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            background: #4a5568; color: #fff;
+            padding: 2px 8px; border-radius: 12px;
+            font-size: 0.8rem; font-weight: bold;
+            z-index: 2; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
             box-shadow: 0 0 0 3px #fff;
         }
 
-        /* 上半部 (雲行) */
-        .fb-top {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding-bottom: 30px; /* 距離中線的高度 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            width: 100%;
-        }
-        /* 連接線 (上) */
-        .fb-top::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 2px;
-            height: 30px;
-            background: var(--header-left); /* 藍色線 */
-        }
-
-        /* 下半部 (竹銘) */
-        .fb-bottom {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding-top: 30px; /* 距離中線的高度 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            width: 100%;
-        }
-        /* 連接線 (下) */
-        .fb-bottom::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 2px;
-            height: 30px;
-            background: var(--header-right); /* 綠色線 */
-        }
-
-        /* 內容卡片 */
+        /* 卡片共用樣式 */
         .fb-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 6px; padding: 8px 4px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 180px;
-            position: relative;
-            z-index: 3;
-            white-space: normal; /* 讓標題換行 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 50px; /* 固定寬度，強制垂直排版 */
+            position: relative; z-index: 3;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .fb-top .fb-card { border-top: 3px solid var(--header-left); }
-        .fb-bottom .fb-card { border-top: 3px solid var(--header-right); }
+        .fb-card:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; }
 
+        /* 顏色主題應用 */
+        .fb-top .fb-card { 
+            background-color: var(--bg-left); /* 雲行淡藍 */
+            border-top: 3px solid var(--header-left); 
+        }
+        .fb-bottom .fb-card { 
+            background-color: var(--bg-right); /* 竹銘淡綠 */
+            border-bottom: 3px solid var(--header-right); 
+        }
+
+        /* 連接線 */
+        .fb-top, .fb-bottom {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .fb-top { bottom: 50%; padding-bottom: 25px; justify-content: flex-end; }
+        .fb-bottom { top: 50%; padding-top: 25px; justify-content: flex-start; }
+        
+        .fb-top::after {
+            content: ''; position: absolute; bottom: 0; left: 50%;
+            width: 2px; height: 25px; background: var(--timeline-line);
+        }
+        .fb-bottom::after {
+            content: ''; position: absolute; top: 0; left: 50%;
+            width: 2px; height: 25px; background: var(--timeline-line);
+        }
+
+        /* 標題樣式 - 垂直書寫以極大化空間 */
         .fb-title {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-            line-height: 1.3;
+            font-size: 0.9rem; font-weight: bold; color: #333;
+            writing-mode: vertical-rl; /* 垂直書寫 */
+            text-orientation: mixed;
+            letter-spacing: 1px;
+            max-height: 120px; /* 限制高度 */
+            margin: 0 auto 5px;
+            text-align: left;
         }
 
-        /* 燈號容器 */
         .fb-dots {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            flex-wrap: wrap;
+            display: flex; flex-direction: column; /* 燈號改為垂直排列 */
+            gap: 3px; align-items: center;
         }
         .mini-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.1);
+            width: 8px; height: 8px; border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.2);
         }
 
-        /* 手機版調整 */
-        @media screen and (max-width: 768px) {
-            .fb-node { min-width: 120px; margin: 0 5px; }
-            .fb-card { padding: 5px; font-size: 0.8rem; }
-            .fb-title { font-size: 0.8rem; }
+        /* 回到上方按鈕 */
+        #backToTop {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 50px; height: 50px;
+            background: #333; color: white;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; cursor: pointer;
+            opacity: 0.7; transition: 0.3s; z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none; /* 預設隱藏，滾動後顯示 */
         }
+        #backToTop:hover { opacity: 1; transform: translateY(-5px); }
 
         /* =========================================
-           原有的 CSS 樣式 (保持不變)
+           下方詳細時間軸 CSS (保持原樣)
            ========================================= */
         .sticky-col-headers {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            width: 100%;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+            display: flex; width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
         }
         .header-col {
-            width: 50%;
-            padding: 15px 0;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            width: 50%; padding: 15px 0; text-align: center;
+            font-weight: bold; font-size: 1.1rem; color: white;
         }
         .header-col.left { background-color: var(--header-left); }
         .header-col.right { background-color: #28a745; }
-        .header-col .icon { margin-right: 8px; font-size: 1.2rem; }
 
         .timeline-container {
-            position: relative;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px 100px;
-            min-height: 50vh;
+            position: relative; max-width: 1200px; margin: 0 auto;
+            padding: 40px 20px 100px; min-height: 50vh;
         }
         .timeline-container::after {
-            content: '';
-            position: absolute;
-            width: 4px;
+            content: ''; position: absolute; width: 4px;
             background-color: var(--timeline-line);
-            top: 0; bottom: 0; left: 50%;
-            margin-left: -2px; z-index: 0;
+            top: 0; bottom: 0; left: 50%; margin-left: -2px; z-index: 0;
         }
-
         .timeline-row {
-            position: relative;
-            margin-bottom: 50px;
-            width: 100%;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease-out;
-            z-index: 1;
-            display: flex; flex-direction: column; align-items: center;
+            position: relative; margin-bottom: 50px; width: 100%;
+            opacity: 0; transform: translateY(30px); transition: all 0.6s ease-out;
+            z-index: 1; display: flex; flex-direction: column; align-items: center;
+            scroll-margin-top: 180px; /* 讓錨點定位時不被上方標題擋住 */
         }
         .timeline-row.visible { opacity: 1; transform: translateY(0); }
 
         .date-badge {
-            width: 130px;
-            background: #4a5568;
-            color: white;
-            padding: 5px 0;
-            text-align: center;
-            border-radius: 20px;
-            font-weight: bold;
-            position: relative;
-            z-index: 5;
-            box-shadow: 0 0 0 4px rgba(255,255,255,0.8);
-            margin-bottom: 5px;
-            font-size: 1rem;
+            width: 130px; background: #4a5568; color: white;
+            padding: 5px 0; text-align: center; border-radius: 20px;
+            font-weight: bold; position: relative; z-index: 5;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.8); margin-bottom: 5px;
         }
-
         .important-event-mini {
-            background-color: var(--event-bg);
-            color: var(--event-text);
-            border: 1px solid var(--event-border);
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            z-index: 5;
-            text-align: center;
-            max-width: 80%;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: var(--event-bg); color: var(--event-text);
+            border: 1px solid var(--event-border); padding: 4px 12px;
+            border-radius: 4px; font-size: 0.9rem; margin-bottom: 20px;
+            z-index: 5; text-align: center; max-width: 80%; font-weight: bold;
             display: inline-block;
         }
         .important-event-mini::before { content: '🔔 '; }
 
-        .content-grid {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            position: relative; width: 100%; flex-wrap: wrap;
-        }
+        .content-grid { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-wrap: wrap; }
         .col-block { width: 46%; }
         
-        .merged-title-container {
-            width: 100%; display: flex; justify-content: center;
-            margin-bottom: 10px; position: relative; z-index: 2;
-        }
+        .merged-title-container { width: 100%; display: flex; justify-content: center; margin-bottom: 10px; position: relative; z-index: 2; }
         .merged-title {
             background: white; border: 2px solid var(--header-left);
             color: var(--header-left); padding: 8px 25px;
             border-radius: 50px; font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
         }
-
         .highlight-style {
             background-color: var(--highlight-bg) !important; 
             border-color: var(--highlight-border) !important; 
             color: var(--highlight-text) !important; 
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transform: scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-
         .task-card {
-            background: var(--card-bg);
-            border-radius: 10px; padding: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-            border: 1px solid rgba(0,0,0,0.05);
-            position: relative; 
+            background: var(--card-bg); border-radius: 10px; padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 10px;
+            border: 1px solid rgba(0,0,0,0.05); position: relative; 
         }
-
         .l1-title {
-            font-size: 1.1rem; font-weight: bold;
-            margin-bottom: 8px; padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
+            font-size: 1.1rem; font-weight: bold; margin-bottom: 8px;
+            padding-bottom: 8px; border-bottom: 1px solid #eee;
             display: block; width: 100%; text-align: center;
         }
         .col-block.left .l1-title { color: var(--header-left); }
         .col-block.right .l1-title { color: var(--header-right); }
-
         .l1-title.highlight-text {
-            background-color: var(--highlight-bg);
-            color: var(--highlight-text) !important;
-            padding: 4px 8px; border-radius: 4px;
-            border-left: 4px solid var(--highlight-border);
+            background-color: var(--highlight-bg); color: var(--highlight-text) !important;
+            padding: 4px 8px; border-radius: 4px; border-left: 4px solid var(--highlight-border);
         }
 
-        /* --- 多行細項區塊 --- */
+        /* 內容細項 */
         .l2-container { display: flex; flex-direction: column; gap: 8px; }
         .l2-row-item { display: flex; align-items: flex-start; position: relative; line-height: 1.6; }
-
         .status-dot {
-            flex-shrink: 0;
-            width: 10px; height: 10px;
-            border-radius: 50%;
+            flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%;
             margin-top: 7px; margin-right: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1);
         }
         .status-gray { background-color: var(--status-gray); }
         .status-yellow { background-color: var(--status-yellow); }
         .status-red { background-color: var(--status-red); box-shadow: 0 0 4px var(--status-red); }
         .status-green { background-color: var(--status-green); box-shadow: 0 0 4px var(--status-green); }
-
         .l2-text { font-size: 1rem; color: var(--text-sub); flex-grow: 1; }
-
+        
         .note-btn {
-            flex-shrink: 0; cursor: pointer;
-            margin-left: 8px; margin-top: 4px;
-            color: #888; font-size: 1.1rem; opacity: 0.6;
-            transition: all 0.2s; border: none; background: none; padding: 0;
+            flex-shrink: 0; cursor: pointer; margin-left: 8px; margin-top: 4px;
+            color: #888; font-size: 1.1rem; opacity: 0.6; border: none; background: none; padding: 0;
         }
         .note-btn.has-note { color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite; }
-        .note-btn:hover { transform: scale(1.1); opacity: 1; }
-
         @keyframes pulse-note { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
+        
         .note-popover {
-            display: none; position: absolute;
-            bottom: 100%; right: 0; width: 250px;
+            display: none; position: absolute; bottom: 100%; right: 0; width: 250px;
             background-color: #fff; border: 1px solid #ccc; border-radius: 8px;
-            padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 100; font-size: 0.9rem; color: #555; text-align: left;
-            margin-bottom: 10px;
+            padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 100;
+            font-size: 0.9rem; color: #555; text-align: left; margin-bottom: 10px;
         }
         .note-popover.show { display: block; animation: fade-in 0.2s; }
-        .note-popover::after { 
-            content: ""; position: absolute;
-            top: 100%; right: 10px;
-            border-width: 8px; border-style: solid;
-            border-color: #fff transparent transparent transparent;
-        }
-        .note-popover strong { display: block; margin-bottom: 5px; color: #333; }
-        
         @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .empty-space { height: 1px; }
 
@@ -483,21 +353,16 @@
             .important-event-mini { display: block; width: fit-content; margin-top: 5px; margin-left: 0; text-align: left;}
             .content-grid { flex-direction: column; padding-left: 35px; }
             .col-block { width: 100%; margin-bottom: 15px; }
-            .col-block.left::before {
-                content: '雲行自主與任務'; display: block; font-size: 0.9rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold;
-            }
-            .col-block.right::before {
-                content: '竹銘委外與協助'; display: block; font-size: 0.9rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold;
-            }
+            .col-block.left::before { content: '雲行自主與任務'; display: block; font-size: 0.9rem; color: var(--header-left); margin-bottom: 5px; font-weight: bold; }
+            .col-block.right::before { content: '竹銘委外與協助'; display: block; font-size: 0.9rem; color: var(--header-right); margin-bottom: 5px; font-weight: bold; }
             .merged-title { width: auto; text-align: left; margin-left: 35px; margin-bottom: 10px; border-radius: 10px;}
             .merged-title-container { justify-content: flex-start; }
             .highlight-style { transform: none; width: calc(100% - 35px); }
             .status-legend { flex-wrap: wrap; gap: 10px; padding: 0 10px; }
             
-            /* 手機上魚骨圖可捲動提示 */
+            /* 手機版魚骨圖 */
             .summary-content::after {
-                content: '← 左右滑動查看更多 →';
-                display: block; text-align: center; color: #999; font-size: 0.8rem; margin-top: 10px; width: 100%;
+                content: '← 左右滑動查看更多 →'; display: block; text-align: center; color: #999; font-size: 0.8rem; margin-top: 10px; width: 100%;
             }
         }
     </style>
@@ -509,7 +374,9 @@
     <span>(若很久沒反應，請檢查 Google Sheet 欄位是否已更新)</span>
 </div>
 
-<header class="main-title">
+<div id="backToTop" onclick="scrollToTop()">▲</div>
+
+<header class="main-title" id="topHeader">
     <h1>竹銘醫院資訊系統時程管理</h1>
     <p>2026 年度專案開發與導入進度表 </p>
     
@@ -548,10 +415,34 @@
         fetchAndRender(GOOGLE_SHEET_CSV_URL);
     });
 
-    // 切換魚骨圖展開/收合
+    // 捲動監聽：顯示/隱藏回到上方按鈕
+    window.onscroll = function() {
+        const btn = document.getElementById("backToTop");
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            btn.style.display = "flex";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    function scrollToTop() {
+        document.getElementById('topHeader').scrollIntoView({behavior: 'smooth'});
+    }
+
     function toggleSummary() {
         const wrapper = document.getElementById('summaryWrapper');
         wrapper.classList.toggle('collapsed');
+    }
+
+    function scrollToDetail(elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            // 閃爍效果提示使用者位置
+            el.style.transition = 'background 0.5s';
+            el.style.backgroundColor = '#fffacd'; 
+            setTimeout(() => { el.style.backgroundColor = ''; }, 1500);
+        }
     }
 
     async function fetchAndRender(url) {
@@ -561,10 +452,7 @@
             const csvText = await response.text();
             const data = parseCSV(csvText);
             
-            // 渲染下方的詳細時間軸
             renderTimeline(data);
-            
-            // 渲染上方的魚骨圖總表
             renderFishbone(data);
             
             document.getElementById('loading').style.display = 'none';
@@ -574,7 +462,7 @@
         }
     }
 
-    // CSV 解析邏輯 (保持不變)
+    // CSV 解析 (含合併邏輯)
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         const rows = [];
@@ -659,35 +547,49 @@
         return 'status-gray';
     }
 
-    // ★★★ 新增：渲染魚骨圖總表 ★★★
+    // ★★★ 渲染魚骨圖總表 (含年份判斷) ★★★
     function renderFishbone(data) {
         const chartContainer = document.getElementById('fishboneChart');
         chartContainer.innerHTML = '';
 
-        data.forEach(item => {
-            // 如果該節點沒有日期，通常不適合放在時間軸上，或者可以顯示為待定
+        let lastYear = '';
+
+        data.forEach((item, index) => {
             if (!item.date) return;
 
+            // 1. 判斷並插入年份節點
+            // 假設日期格式為 YYYY.MM.DD 或 YYYY/MM/DD
+            const fullYear = item.date.split(/[./-]/)[0]; // 抓取前四碼
+            
+            if (fullYear !== lastYear) {
+                const yearNode = document.createElement('div');
+                yearNode.className = 'fb-node year-marker';
+                yearNode.innerHTML = `<div class="year-circle">${fullYear}</div>`;
+                chartContainer.appendChild(yearNode);
+                lastYear = fullYear;
+            }
+
+            // 2. 建立項目節點
             const node = document.createElement('div');
             node.className = 'fb-node';
 
-            // 日期球
+            // 日期只顯示 MM.DD
+            const dateParts = item.date.split(/[./-]/);
+            const shortDate = (dateParts.length >= 3) ? `${dateParts[1]}.${dateParts[2]}` : item.date;
+
             const dateEl = document.createElement('div');
             dateEl.className = 'fb-date';
-            dateEl.textContent = item.date.replace(/\.\d{4}/, ''); // 簡化日期顯示 (視需求)
-            dateEl.textContent = item.date;
+            dateEl.textContent = shortDate;
             node.appendChild(dateEl);
 
             // 上半部 (Cloud)
             if (item.cloud && item.cloud.l1) {
                 const topWrapper = document.createElement('div');
                 topWrapper.className = 'fb-top';
-                
-                // 產生燈號 HTML
                 const dotsHtml = generateDotsHtml(item.cloud.status);
-                
+                // 增加 onclick 跳轉
                 topWrapper.innerHTML = `
-                    <div class="fb-card">
+                    <div class="fb-card" onclick="scrollToDetail('detail-${index}')">
                         <div class="fb-title">${item.cloud.l1}</div>
                         <div class="fb-dots">${dotsHtml}</div>
                     </div>
@@ -699,12 +601,9 @@
             if (item.hosp && item.hosp.l1) {
                 const bottomWrapper = document.createElement('div');
                 bottomWrapper.className = 'fb-bottom';
-                
-                // 產生燈號 HTML
                 const dotsHtml = generateDotsHtml(item.hosp.status);
-                
                 bottomWrapper.innerHTML = `
-                    <div class="fb-card">
+                    <div class="fb-card" onclick="scrollToDetail('detail-${index}')">
                         <div class="fb-title">${item.hosp.l1}</div>
                         <div class="fb-dots">${dotsHtml}</div>
                     </div>
@@ -716,13 +615,11 @@
         });
     }
 
-    // 輔助函式：根據狀態字串生成小圓點
     function generateDotsHtml(statusRaw) {
         if (!statusRaw) return '';
         const statuses = statusRaw.split(/\r?\n/);
         let html = '';
         statuses.forEach(s => {
-            // 跳過空行，除非您希望保留空燈號
             if (!s.trim()) return;
             const cls = getStatusClass(s);
             html += `<span class="mini-dot ${cls}" title="${s}"></span>`;
@@ -730,7 +627,7 @@
         return html;
     }
 
-    // 詳細列表渲染 (保持不變)
+    // 渲染詳細時間軸 (增加 ID 以供跳轉)
     function createDetailHtml(detailRaw, statusRaw, noteRaw) {
         if (!detailRaw) return "&nbsp;";
         const details = detailRaw.split(/\r?\n/);
@@ -761,9 +658,11 @@
     function renderTimeline(data) {
         const container = document.getElementById('timeline');
         container.innerHTML = ''; 
-        data.forEach(item => {
+        data.forEach((item, index) => { // 增加 index 參數
             const row = document.createElement('div');
             row.className = 'timeline-row';
+            row.id = `detail-${index}`; // 設定 ID 供跳轉
+
             const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
             let mergedTitleHtml = '';
             let leftContentHtml = '';
