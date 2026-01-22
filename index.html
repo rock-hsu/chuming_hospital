@@ -496,7 +496,6 @@
         }
     }
 
-    // ★★★ 核心修改：新增連結欄位讀取與轉換 ★★★
     function parseCSV(text) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         const rows = [];
@@ -534,7 +533,7 @@
             const hasHospTitle = !!safeGet(7);
             const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
 
-            // 處理連結：如果發現是 Google Drive View Link，轉成 Preview Link
+            // 連結轉換：View -> Preview
             const processLink = (link) => {
                 if (!link) return '';
                 if (link.includes('drive.google.com') && link.includes('/view')) {
@@ -546,7 +545,6 @@
             if (isNewCard) {
                 const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
                 let cloudObj = null;
-                // Cloud 欄位: Title=2, Detail=3, Status=4, Note=5, Link=6 (G欄)
                 if (safeGet(2) || safeGet(3)) {
                     cloudObj = { 
                         l1: safeGet(2), 
@@ -557,7 +555,6 @@
                     };
                 }
                 let hospObj = null;
-                // Hosp 欄位: Title=7, Detail=8, Status=9, Note=10, Link=11 (L欄)
                 if (safeGet(7) || safeGet(8)) {
                     hospObj = { 
                         l1: safeGet(7), 
@@ -572,7 +569,7 @@
                     highlight: isHighlight,
                     cloud: cloudObj,
                     hosp: hospObj,
-                    event: safeGet(12).replace(/\\n/g, '\n') // Event 在 M 欄 (index 12)
+                    event: safeGet(12).replace(/\\n/g, '\n')
                 };
                 processedItems.push(lastItem);
             } else {
@@ -626,7 +623,6 @@
             }
 
             const node = document.createElement('div');
-            // 統一寬度，確保整齊
             node.className = 'fb-node';
 
             const dateParts = item.date.split(/[./-]/);
@@ -684,7 +680,6 @@
         return html;
     }
 
-    // ★★★ 渲染詳細時間軸 (含雲朵連結按鈕) ★★★
     function createDetailHtml(detailRaw, statusRaw, noteRaw, linkRaw) {
         if (!detailRaw) return "&nbsp;";
         const details = detailRaw.split(/\r?\n/);
@@ -701,7 +696,6 @@
             
             const statusClass = getStatusClass(currentStatus);
             
-            // 備註按鈕
             let noteBtnHtml = '';
             if (currentNote && currentNote.trim()) {
                 noteBtnHtml = `
@@ -709,7 +703,6 @@
                     <div class="note-popover"><strong>說明：</strong>${currentNote.replace(/\n/g, '<br>')}</div>`;
             }
 
-            // 雲端連結按鈕 (雲朵)
             let linkBtnHtml = '';
             if (currentLink && currentLink.trim()) {
                 linkBtnHtml = `
@@ -728,6 +721,7 @@
         return `<div class="l2-container">${htmlLines}</div>`;
     }
 
+    // ★★★ 核心修改：強制 Highlight 項目套用「合併置中」樣式 ★★★
     function renderTimeline(data) {
         const container = document.getElementById('timeline');
         container.innerHTML = ''; 
@@ -736,7 +730,21 @@
             row.className = 'timeline-row';
             row.id = `detail-${index}`; 
 
-            const isMerged = (item.cloud && item.hosp && item.cloud.l1 && item.hosp.l1 && item.cloud.l1 === item.hosp.l1);
+            const cTitle = (item.cloud && item.cloud.l1) ? item.cloud.l1 : "";
+            const hTitle = (item.hosp && item.hosp.l1) ? item.hosp.l1 : "";
+            
+            // 判斷是否為合併顯示 (置中黃色膠囊)
+            // 條件 1: 標題完全相同 (Standard)
+            let isMerged = (cTitle && hTitle && cTitle === hTitle);
+            
+            // 條件 2: 使用者要求 Highlight 項目必須是置中膠囊 (即使是單邊)
+            if (item.highlight) {
+                // 如果只有一邊有標題，強制視為合併，讓標題顯示在中間
+                if ((cTitle && !hTitle) || (!cTitle && hTitle)) {
+                    isMerged = true;
+                }
+            }
+
             let mergedTitleHtml = '';
             let leftContentHtml = '';
             let rightContentHtml = '';
@@ -745,20 +753,29 @@
             const cardTitleClass = item.highlight ? 'highlight-text' : '';
 
             if (isMerged) {
-                mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${item.cloud.l1}</div></div>`;
-                leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
-                rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
+                // 決定中間要顯示什麼文字
+                const displayTitle = cTitle || hTitle;
+                
+                mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${displayTitle}</div></div>`;
+                
+                // 下方的卡片只顯示細節 (因為標題已經跑到中間了)
+                leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud ? item.cloud.l2 : "", item.cloud ? item.cloud.status : "", item.cloud ? item.cloud.note : "", item.cloud ? item.cloud.link : "")}</div>`;
+                rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp ? item.hosp.l2 : "", item.hosp ? item.hosp.status : "", item.hosp ? item.hosp.note : "", item.hosp ? item.hosp.link : "")}</div>`;
             } else {
+                // 非合併狀態：各自顯示標題在卡片內
                 if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
                     leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
                 } else { leftContentHtml = `<div class="empty-space"></div>`; }
+                
                 if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
                     rightContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
                 } else { rightContentHtml = `<div class="empty-space"></div>`; }
             }
+            
             row.innerHTML = `<div class="date-badge">${item.date}</div>${eventHtml}${mergedTitleHtml}<div class="content-grid"><div class="col-block left">${leftContentHtml}</div><div class="col-block right">${rightContentHtml}</div></div>`;
             container.appendChild(row);
         });
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
         }, { threshold: 0.1 });
