@@ -533,7 +533,7 @@
             const hasHospTitle = !!safeGet(7);
             const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
 
-            // 連結轉換：View -> Preview
+            // 連結轉換
             const processLink = (link) => {
                 if (!link) return '';
                 if (link.includes('drive.google.com') && link.includes('/view')) {
@@ -721,7 +721,7 @@
         return `<div class="l2-container">${htmlLines}</div>`;
     }
 
-    // ★★★ 核心修改：強制 Highlight 項目套用「合併置中」樣式 ★★★
+    // ★★★ 核心修正：避免 Highlight 項目在無內容的側邊產生白色空卡片 ★★★
     function renderTimeline(data) {
         const container = document.getElementById('timeline');
         container.innerHTML = ''; 
@@ -733,13 +733,9 @@
             const cTitle = (item.cloud && item.cloud.l1) ? item.cloud.l1 : "";
             const hTitle = (item.hosp && item.hosp.l1) ? item.hosp.l1 : "";
             
-            // 判斷是否為合併顯示 (置中黃色膠囊)
-            // 條件 1: 標題完全相同 (Standard)
             let isMerged = (cTitle && hTitle && cTitle === hTitle);
             
-            // 條件 2: 使用者要求 Highlight 項目必須是置中膠囊 (即使是單邊)
             if (item.highlight) {
-                // 如果只有一邊有標題，強制視為合併，讓標題顯示在中間
                 if ((cTitle && !hTitle) || (!cTitle && hTitle)) {
                     isMerged = true;
                 }
@@ -753,16 +749,23 @@
             const cardTitleClass = item.highlight ? 'highlight-text' : '';
 
             if (isMerged) {
-                // 決定中間要顯示什麼文字
                 const displayTitle = cTitle || hTitle;
-                
                 mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${displayTitle}</div></div>`;
                 
-                // 下方的卡片只顯示細節 (因為標題已經跑到中間了)
-                leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud ? item.cloud.l2 : "", item.cloud ? item.cloud.status : "", item.cloud ? item.cloud.note : "", item.cloud ? item.cloud.link : "")}</div>`;
-                rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp ? item.hosp.l2 : "", item.hosp ? item.hosp.status : "", item.hosp ? item.hosp.note : "", item.hosp ? item.hosp.link : "")}</div>`;
+                // ★ 修正：先檢查是否有內容 (l2)，有內容才畫卡片，否則畫空位
+                if (item.cloud && item.cloud.l2) {
+                    leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
+                } else {
+                    leftContentHtml = `<div class="empty-space"></div>`;
+                }
+
+                if (item.hosp && item.hosp.l2) {
+                    rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
+                } else {
+                    rightContentHtml = `<div class="empty-space"></div>`;
+                }
+
             } else {
-                // 非合併狀態：各自顯示標題在卡片內
                 if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
                     leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
                 } else { leftContentHtml = `<div class="empty-space"></div>`; }
