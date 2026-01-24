@@ -530,10 +530,9 @@
             const safeGet = (idx) => row[idx] ? row[idx].trim() : "";
             const hasDate = !!safeGet(0);
             const hasCloudTitle = !!safeGet(2);
-            const hasHospTitle = !!safeGet(7);
+            const hasHospTitle = !!safeGet(8);
             const isNewCard = hasDate || hasCloudTitle || hasHospTitle;
 
-            // 連結轉換
             const processLink = (link) => {
                 if (!link) return '';
                 if (link.includes('drive.google.com') && link.includes('/view')) {
@@ -541,6 +540,10 @@
                 }
                 return link;
             };
+
+            // Cloud: Title=2, Detail=3, Status=4, Note=5, Link=6, Color=7
+            // Hosp: Title=8, Detail=9, Status=10, Note=11, Link=12, Color=13
+            // Event: 14
 
             if (isNewCard) {
                 const isHighlight = (safeGet(1).toUpperCase() === 'TRUE');
@@ -551,17 +554,19 @@
                         l2: safeGet(3), 
                         status: safeGet(4), 
                         note: safeGet(5),
-                        link: processLink(safeGet(6))
+                        link: processLink(safeGet(6)),
+                        color: safeGet(7)
                     };
                 }
                 let hospObj = null;
-                if (safeGet(7) || safeGet(8)) {
+                if (safeGet(8) || safeGet(9)) {
                     hospObj = { 
-                        l1: safeGet(7), 
-                        l2: safeGet(8), 
-                        status: safeGet(9), 
-                        note: safeGet(10),
-                        link: processLink(safeGet(11))
+                        l1: safeGet(8), 
+                        l2: safeGet(9), 
+                        status: safeGet(10), 
+                        note: safeGet(11),
+                        link: processLink(safeGet(12)),
+                        color: safeGet(13)
                     };
                 }
                 lastItem = {
@@ -569,24 +574,26 @@
                     highlight: isHighlight,
                     cloud: cloudObj,
                     hosp: hospObj,
-                    event: safeGet(12).replace(/\\n/g, '\n')
+                    event: safeGet(14).replace(/\\n/g, '\n')
                 };
                 processedItems.push(lastItem);
             } else {
                 if (lastItem) {
                     if (safeGet(3)) {
-                        if (!lastItem.cloud) lastItem.cloud = { l1: '', l2: '', status: '', note: '', link: '' };
+                        if (!lastItem.cloud) lastItem.cloud = { l1: '', l2: '', status: '', note: '', link: '', color: '' };
                         lastItem.cloud.l2 += (lastItem.cloud.l2 ? '\n' : '') + safeGet(3);
                         lastItem.cloud.status += '\n' + safeGet(4); 
                         lastItem.cloud.note += '\n' + safeGet(5);
                         lastItem.cloud.link += '\n' + processLink(safeGet(6));
+                        lastItem.cloud.color += '\n' + safeGet(7);
                     }
-                    if (safeGet(8)) {
-                        if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '', link: '' };
-                        lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(8);
-                        lastItem.hosp.status += '\n' + safeGet(9);
-                        lastItem.hosp.note += '\n' + safeGet(10);
-                        lastItem.hosp.link += '\n' + processLink(safeGet(11));
+                    if (safeGet(9)) {
+                        if (!lastItem.hosp) lastItem.hosp = { l1: '', l2: '', status: '', note: '', link: '', color: '' };
+                        lastItem.hosp.l2 += (lastItem.hosp.l2 ? '\n' : '') + safeGet(9);
+                        lastItem.hosp.status += '\n' + safeGet(10);
+                        lastItem.hosp.note += '\n' + safeGet(11);
+                        lastItem.hosp.link += '\n' + processLink(safeGet(12));
+                        lastItem.hosp.color += '\n' + safeGet(13);
                     }
                 }
             }
@@ -601,6 +608,33 @@
         if (statusText.includes('開始進行')) return 'status-red';
         if (statusText.includes('如期完成')) return 'status-green';
         return 'status-gray';
+    }
+
+    // ★★★ 核心升級：魔法代碼翻譯機 ★★★
+    function parseRichText(text) {
+        if (!text) return "";
+        let formatted = text;
+        
+        // 1. 萬用標籤 {c:color}text{/c}
+        formatted = formatted.replace(/{c:(.*?)}(.*?){\/c}/g, '<span style="color:$1; font-weight:bold;">$2</span>');
+
+        // 2. 快速短碼
+        const shortcuts = {
+            'r': '#e74c3c', // 紅
+            'b': '#3498db', // 藍
+            'g': '#2ecc71', // 綠
+            'o': '#f39c12', // 橘
+            'p': '#9b59b6', // 紫
+            'y': '#f1c40f', // 黃
+            'gray': '#95a5a6' // 灰
+        };
+
+        for (const [key, color] of Object.entries(shortcuts)) {
+            const regex = new RegExp(`{${key}}(.*?){\/${key}}`, 'g');
+            formatted = formatted.replace(regex, `<span style="color:${color}; font-weight:bold;">$1</span>`);
+        }
+
+        return formatted;
     }
 
     function renderFishbone(data) {
@@ -642,9 +676,11 @@
                 const topWrapper = document.createElement('div');
                 topWrapper.className = 'fb-top';
                 const dotsHtml = generateDotsHtml(item.cloud.status);
+                // 魚骨圖標題也套用變色
+                const richTitle = parseRichText(item.cloud.l1);
                 topWrapper.innerHTML = `
                     <div class="fb-card" onclick="scrollToDetail('detail-${index}')">
-                        <div class="fb-title">${item.cloud.l1}</div>
+                        <div class="fb-title">${richTitle}</div>
                         <div class="fb-dots">${dotsHtml}</div>
                     </div>
                 `;
@@ -655,9 +691,11 @@
                 const bottomWrapper = document.createElement('div');
                 bottomWrapper.className = 'fb-bottom';
                 const dotsHtml = generateDotsHtml(item.hosp.status);
+                // 魚骨圖標題也套用變色
+                const richTitle = parseRichText(item.hosp.l1);
                 bottomWrapper.innerHTML = `
                     <div class="fb-card" onclick="scrollToDetail('detail-${index}')">
-                        <div class="fb-title">${item.hosp.l1}</div>
+                        <div class="fb-title">${richTitle}</div>
                         <div class="fb-dots">${dotsHtml}</div>
                     </div>
                 `;
@@ -680,12 +718,13 @@
         return html;
     }
 
-    function createDetailHtml(detailRaw, statusRaw, noteRaw, linkRaw) {
+    function createDetailHtml(detailRaw, statusRaw, noteRaw, linkRaw, colorRaw) {
         if (!detailRaw) return "&nbsp;";
         const details = detailRaw.split(/\r?\n/);
         const statuses = statusRaw ? statusRaw.split(/\r?\n/) : [];
         const notes = noteRaw ? noteRaw.split(/\r?\n/) : [];
         const links = linkRaw ? linkRaw.split(/\r?\n/) : [];
+        const colors = colorRaw ? colorRaw.split(/\r?\n/) : []; 
 
         let htmlLines = '';
         details.forEach((lineText, index) => {
@@ -693,9 +732,13 @@
             const currentStatus = statuses[index] || '';
             const currentNote = notes[index] || '';
             const currentLink = links[index] || '';
+            const currentColor = colors[index] || ''; 
             
             const statusClass = getStatusClass(currentStatus);
             
+            // ★★★ 應用局部變色邏輯 ★★★
+            let processedText = parseRichText(lineText);
+
             let noteBtnHtml = '';
             if (currentNote && currentNote.trim()) {
                 noteBtnHtml = `
@@ -710,10 +753,13 @@
                 `;
             }
 
+            // 同時支援整行變色(style) 與 局部變色(processedText)
+            const textStyle = currentColor ? `style="color: ${currentColor.trim()};"` : '';
+
             htmlLines += `
                 <div class="l2-row-item">
                     <div class="status-dot ${statusClass}" title="${currentStatus || '狀態未定'}"></div>
-                    <div class="l2-text">${lineText}</div>
+                    <div class="l2-text" ${textStyle}>${processedText}</div>
                     ${noteBtnHtml}
                     ${linkBtnHtml}
                 </div>`;
@@ -721,7 +767,6 @@
         return `<div class="l2-container">${htmlLines}</div>`;
     }
 
-    // ★★★ 核心修正：避免 Highlight 項目在無內容的側邊產生白色空卡片 ★★★
     function renderTimeline(data) {
         const container = document.getElementById('timeline');
         container.innerHTML = ''; 
@@ -750,28 +795,31 @@
 
             if (isMerged) {
                 const displayTitle = cTitle || hTitle;
-                mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${displayTitle}</div></div>`;
+                // 合併標題也支援變色
+                const richTitle = parseRichText(displayTitle);
+                mergedTitleHtml = `<div class="merged-title-container"><div class="merged-title ${mergedClass}">${richTitle}</div></div>`;
                 
-                // ★ 修正：先檢查是否有內容 (l2)，有內容才畫卡片，否則畫空位
                 if (item.cloud && item.cloud.l2) {
-                    leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
+                    leftContentHtml = `<div class="task-card">${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link, item.cloud.color)}</div>`;
                 } else {
                     leftContentHtml = `<div class="empty-space"></div>`;
                 }
 
                 if (item.hosp && item.hosp.l2) {
-                    rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
+                    rightContentHtml = `<div class="task-card">${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link, item.hosp.color)}</div>`;
                 } else {
                     rightContentHtml = `<div class="empty-space"></div>`;
                 }
 
             } else {
                 if (item.cloud && (item.cloud.l1 || item.cloud.l2)) {
-                    leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.cloud.l1}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link)}</div>`;
+                    const richCTitle = parseRichText(item.cloud.l1);
+                    leftContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${richCTitle}</div>${createDetailHtml(item.cloud.l2, item.cloud.status, item.cloud.note, item.cloud.link, item.cloud.color)}</div>`;
                 } else { leftContentHtml = `<div class="empty-space"></div>`; }
                 
                 if (item.hosp && (item.hosp.l1 || item.hosp.l2)) {
-                    rightContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${item.hosp.l1}</div>${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link)}</div>`;
+                    const richHTitle = parseRichText(item.hosp.l1);
+                    rightContentHtml = `<div class="task-card"><div class="l1-title ${cardTitleClass}">${richHTitle}</div>${createDetailHtml(item.hosp.l2, item.hosp.status, item.hosp.note, item.hosp.link, item.hosp.color)}</div>`;
                 } else { rightContentHtml = `<div class="empty-space"></div>`; }
             }
             
