@@ -59,32 +59,35 @@
             background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
 
-        /* 標題區 */
+        /* 標題區 (高度壓縮版) */
         header.main-title {
             background: #fff;
             text-align: center;
-            padding: 1.5rem 1rem 1rem;
+            /* 修改：減少 Padding */
+            padding: 1rem 1rem 0.5rem; 
             border-bottom: 1px solid #ccc;
             position: relative;
             z-index: 10;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         header.main-title h1 { 
-            font-size: 1.8rem;
-            margin-bottom: 0.8rem; 
+            /* 修改：字體縮小，Margin 減少 */
+            font-size: 1.5rem; 
+            margin-bottom: 0.5rem; 
             color: #333; 
         }
 
-        /* --- 狀態圖例區塊 (單行整合版) --- */
+        /* --- 狀態圖例區塊 --- */
         .status-legend {
             display: flex; 
             justify-content: center; 
             align-items: center;
             flex-wrap: wrap; 
-            gap: 20px; /* 項目間距 */
+            gap: 15px; 
             font-size: 0.85rem; 
             color: #555;
-            margin-top: 5px;
+            /* 修改：減少上方距離 */
+            margin-top: 0;
         }
 
         .legend-item { display: flex; align-items: center; white-space: nowrap; }
@@ -93,7 +96,6 @@
             margin-right: 6px; display: inline-block;
         }
         
-        /* 分隔線 (用於區分燈號與功能圖示) */
         .legend-separator {
             width: 1px;
             height: 14px;
@@ -107,7 +109,8 @@
         .summary-wrapper {
             background: #fff; width: 100%; border-bottom: 1px solid #ccc;
             position: relative; z-index: 9; transition: all 0.3s ease; overflow: hidden;
-            max-height: 80vh; 
+            /* 修改：減少最大高度限制，避免佔位 */
+            max-height: 70vh; 
         }
         
         .summary-toggle-bar {
@@ -120,7 +123,8 @@
         .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
         
         .summary-content {
-            padding: 10px 0 60px; 
+            /* 修改：大幅減少下方 Padding (60px -> 10px)，讓藍綠區塊浮上來 */
+            padding: 10px 0 10px; 
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: thin; scrollbar-color: #aaa #f1f1f1;
@@ -147,7 +151,8 @@
             position: relative; 
             margin: 0 5px; 
             min-width: 60px; 
-            height: 580px; 
+            /* 修改：縮減整體高度 (580px -> 530px) */
+            height: 530px; 
             vertical-align: middle;
             transition: min-width 0.3s ease;
         }
@@ -205,11 +210,13 @@
             position: absolute; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center;
         }
-        .fb-top { bottom: 50%; padding-bottom: 40px; justify-content: flex-end; }
-        .fb-bottom { top: 50%; padding-top: 40px; justify-content: flex-start; }
+        /* 修改：縮短連接線 Padding (40px -> 20px) */
+        .fb-top { bottom: 50%; padding-bottom: 20px; justify-content: flex-end; }
+        .fb-bottom { top: 50%; padding-top: 20px; justify-content: flex-start; }
         
-        .fb-top::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 40px; background: var(--timeline-line); }
-        .fb-bottom::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 40px; background: var(--timeline-line); }
+        /* 修改：縮短連接線高度 (40px -> 20px) */
+        .fb-top::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 20px; background: var(--timeline-line); }
+        .fb-bottom::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: var(--timeline-line); }
 
         .fb-title {
             font-size: 0.9rem; font-weight: bold; color: #333;
@@ -274,20 +281,11 @@
             font-weight: bold; position: relative; z-index: 5;
             box-shadow: 0 0 0 4px rgba(255,255,255,0.8); margin-bottom: 5px;
         }
-
-        /* 重要事件 - 膠囊風格 */
         .important-event-mini {
-            background-color: var(--event-bg); 
-            color: var(--event-text);
-            border: 1px solid var(--event-border); 
-            padding: 6px 20px;
-            border-radius: 50px;
-            font-size: 0.95rem; 
-            margin-bottom: 20px;
-            z-index: 5; 
-            text-align: center; 
-            max-width: 85%; 
-            font-weight: bold;
+            background-color: var(--event-bg); color: var(--event-text);
+            border: 1px solid var(--event-border); padding: 6px 20px;
+            border-radius: 50px; font-size: 0.95rem; margin-bottom: 20px;
+            z-index: 5; text-align: center; max-width: 85%; font-weight: bold;
             display: inline-block;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
