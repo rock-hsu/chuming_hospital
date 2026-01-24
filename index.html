@@ -26,7 +26,7 @@
             --highlight-border: #0056b3;
             --highlight-text: #0056b3;
 
-            /* --- 燈號顏色定義 (對應年環顏色) --- */
+            /* --- 燈號顏色定義 --- */
             --status-gray: #bdc3c7;   /* 尚未開始 */
             --status-yellow: #f1c40f; /* 討論分析 */
             --status-red: #e74c3c;    /* 開始進行 */
@@ -143,7 +143,7 @@
             position: relative; 
             margin: 0 5px; 
             min-width: 60px; 
-            height: 570px; /* 570px 高度 */
+            height: 570px; 
             vertical-align: middle;
             transition: min-width 0.3s ease;
         }
@@ -152,34 +152,18 @@
             min-width: 90px;
             margin: 0 15px;
         }
-
-        /* ★★★ 核心修改：動態年環 (Year Circle) ★★★ */
+        
         .year-circle-wrapper {
-            position: relative;
-            width: 70px; 
-            height: 70px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 50%;
-            z-index: 5;
-            /* 這裡的 background 會由 JS 動態產生 conic-gradient */
-            box-shadow: 0 0 0 2px #ccc; /* 最外層淡淡的邊框 */
+            position: relative; width: 65px; height: 65px;
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 50%; z-index: 5;
+            box-shadow: 0 0 0 2px #ccc;
         }
-
         .year-circle-inner {
-            background: #333; 
-            color: #fff;
-            width: 58px; /* 內圈大小，決定外圈粗細 (70-58)/2 = 6px 粗 */
-            height: 58px;
-            border-radius: 50%;
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            font-weight: bold; 
-            font-size: 1.1rem;
-            z-index: 6;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5); /* 內陰影增加立體感 */
+            background: #333; color: #fff; width: 55px; height: 55px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 1.1rem; z-index: 6;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
         }
 
         .fb-date {
@@ -207,7 +191,7 @@
             text-align: center;
             box-shadow: 0 2px 3px rgba(0,0,0,0.1);
             width: 48px; 
-            height: 240px; /* 卡片高度 240px */
+            height: 240px; 
             display: flex; flex-direction: column; justify-content: space-between; align-items: center;
             position: relative; z-index: 3;
             cursor: pointer;
@@ -233,7 +217,7 @@
             font-size: 0.85rem; font-weight: bold; color: #333;
             writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 1.5px;
             text-align: left; margin-top: 5px; 
-            max-height: 220px; /* 配合卡片 */
+            max-height: 220px; 
         }
 
         .fb-dots {
@@ -485,7 +469,6 @@
             const csvText = await response.text();
             const data = parseCSV(csvText);
             
-            // ★★★ 在渲染前先統計各年份的狀態 ★★★
             const yearStats = calculateYearStats(data);
             
             renderTimeline(data);
@@ -498,9 +481,8 @@
         }
     }
 
-    // ★★★ 新增：統計年份進度功能 ★★★
     function calculateYearStats(data) {
-        const stats = {}; // { '2026': { gray: 5, yellow: 2, red: 1, green: 3, total: 11 }, ... }
+        const stats = {}; 
         
         data.forEach(item => {
             if (!item.date) return;
@@ -511,7 +493,6 @@
                 stats[year] = { gray: 0, yellow: 0, red: 0, green: 0, total: 0 };
             }
 
-            // 統計一個卡片中的所有狀態點
             const countStatus = (statusStr) => {
                 if (!statusStr) return;
                 const lines = statusStr.split(/\r?\n/);
@@ -520,7 +501,7 @@
                     if (s.includes('如期完成')) stats[year].green++;
                     else if (s.includes('開始進行')) stats[year].red++;
                     else if (s.includes('討論分析')) stats[year].yellow++;
-                    else stats[year].gray++; // 尚未開始或未定義
+                    else stats[year].gray++; 
                     stats[year].total++;
                 });
             };
@@ -531,24 +512,18 @@
         return stats;
     }
 
-    // ★★★ 新增：產生圓錐漸層 CSS ★★★
     function getYearProgressGradient(yearStat) {
-        if (!yearStat || yearStat.total === 0) return 'conic-gradient(#bdc3c7 0% 100%)'; // 預設全灰
+        if (!yearStat || yearStat.total === 0) return 'conic-gradient(#bdc3c7 0% 100%)'; 
 
         const total = yearStat.total;
-        // 計算各顏色佔比 (轉換為角度或百分比)
         const pGray = (yearStat.gray / total) * 100;
         const pYellow = (yearStat.yellow / total) * 100;
         const pRed = (yearStat.red / total) * 100;
         const pGreen = (yearStat.green / total) * 100;
 
-        // 累積百分比
         const stop1 = pGray;
         const stop2 = stop1 + pYellow;
         const stop3 = stop2 + pRed;
-        
-        // 顏色代碼需對應 CSS 變數
-        // Gray: #bdc3c7, Yellow: #f1c40f, Red: #e74c3c, Green: #2ecc71
         
         return `conic-gradient(
             #bdc3c7 0% ${stop1}%, 
@@ -668,16 +643,17 @@
         return 'status-gray';
     }
 
+    // V2.0 魔法代碼翻譯機
     function parseRichText(text) {
         if (!text) return "";
         let formatted = text;
-        formatted = formatted.replace(/{c:(.*?)}(.*?){\/c}/g, '<span style="color:$1; font-weight:bold;">$2</span>');
+        formatted = formatted.replace(/{c:\s*(.*?)\s*}([\s\S]*?){\/c}/g, '<span style="color:$1; font-weight:bold;">$2</span>');
         const shortcuts = {
             'r': '#e74c3c', 'b': '#3498db', 'g': '#2ecc71', 
             'o': '#f39c12', 'p': '#9b59b6', 'y': '#f1c40f', 'gray': '#95a5a6'
         };
         for (const [key, color] of Object.entries(shortcuts)) {
-            const regex = new RegExp(`{${key}}(.*?){\/${key}}`, 'g');
+            const regex = new RegExp(`{${key}}([\\s\\S]*?){\\/${key}}`, 'g');
             formatted = formatted.replace(regex, `<span style="color:${color}; font-weight:bold;">$1</span>`);
         }
         return formatted;
@@ -698,7 +674,6 @@
                 const yearNode = document.createElement('div');
                 yearNode.className = 'fb-node year-marker';
                 
-                // ★★★ 應用動態年環 ★★★
                 const gradientStyle = getYearProgressGradient(yearStats[fullYear]);
                 
                 yearNode.innerHTML = `
