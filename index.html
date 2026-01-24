@@ -59,7 +59,7 @@
             background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
 
-        /* 標題區：適度壓縮，保留質感 */
+        /* 標題區 */
         header.main-title {
             background: #fff;
             text-align: center;
@@ -116,7 +116,6 @@
         .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
         
         .summary-content {
-            /* 上下留白適中，確保下方標題列能浮現 */
             padding: 15px 0 15px; 
             overflow-x: auto;
             white-space: nowrap;
@@ -144,8 +143,8 @@
             position: relative; 
             margin: 0 5px; 
             min-width: 60px; 
-            /* ★★★ 黃金高度：500px (平衡點) ★★★ */
-            height: 500px; 
+            /* ★★★ 修改：配合卡片增高，總高度微調至 560px ★★★ */
+            height: 560px; 
             vertical-align: middle;
             transition: min-width 0.3s ease;
         }
@@ -187,16 +186,16 @@
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: 6px; padding: 10px 5px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
             width: 48px; 
-            /* ★★★ 黃金高度：200px (容納約12字) ★★★ */
-            height: 200px; 
+            /* ★★★ 修改：卡片高度調整為 230px ★★★ */
+            height: 230px; 
             display: flex; flex-direction: column; justify-content: space-between; align-items: center;
             position: relative; z-index: 3;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .fb-card:hover { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; }
+        .fb-card:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 10; }
 
         .fb-top .fb-card { background-color: var(--bg-left); border-top: 3px solid var(--header-left); }
         .fb-bottom .fb-card { background-color: var(--bg-right); border-bottom: 3px solid var(--header-right); }
@@ -205,11 +204,10 @@
             position: absolute; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center;
         }
-        /* ★★★ 修改：Padding 25px (不緊貼) ★★★ */
+        
         .fb-top { bottom: 50%; padding-bottom: 25px; justify-content: flex-end; }
         .fb-bottom { top: 50%; padding-top: 25px; justify-content: flex-start; }
         
-        /* ★★★ 修改：連接線 25px ★★★ */
         .fb-top::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 25px; background: var(--timeline-line); }
         .fb-bottom::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 25px; background: var(--timeline-line); }
 
@@ -217,7 +215,8 @@
             font-size: 0.85rem; font-weight: bold; color: #333;
             writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 1.5px;
             text-align: left; margin-top: 5px; 
-            max-height: 180px; 
+            /* ★★★ 修改：配合卡片增高，文字空間增加至 210px ★★★ */
+            max-height: 210px; 
         }
 
         .fb-dots {
@@ -295,7 +294,7 @@
         .merged-title-container { width: 100%; display: flex; justify-content: center; margin-bottom: 10px; position: relative; z-index: 2; }
         .merged-title {
             background: white; border: 2px solid var(--header-left);
-            color: var(--header-left); padding: 8px 25px;
+            color: var(--header-left); padding: 6px 20px;
             border-radius: 50px; font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             font-size: 1rem;
@@ -307,13 +306,13 @@
             transform: scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
         .task-card {
-            background: var(--card-bg); border-radius: 10px; padding: 15px;
+            background: var(--card-bg); border-radius: 10px; padding: 12px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 10px;
             border: 1px solid rgba(0,0,0,0.05); position: relative; 
         }
         .l1-title {
-            font-size: 1.1rem; font-weight: bold; margin-bottom: 8px;
-            padding-bottom: 8px; border-bottom: 1px solid #eee;
+            font-size: 1rem; font-weight: bold; margin-bottom: 6px;
+            padding-bottom: 6px; border-bottom: 1px solid #eee;
             display: block; width: 100%; text-align: center;
         }
         .col-block.left .l1-title { color: var(--header-left); }
@@ -323,31 +322,29 @@
             padding: 4px 8px; border-radius: 4px; border-left: 4px solid var(--highlight-border);
         }
 
-        /* 內容細項 */
-        .l2-container { display: flex; flex-direction: column; gap: 8px; }
-        .l2-row-item { display: flex; align-items: flex-start; position: relative; line-height: 1.6; }
+        .l2-container { display: flex; flex-direction: column; gap: 6px; }
+        .l2-row-item { display: flex; align-items: flex-start; position: relative; line-height: 1.5; }
         .status-dot {
-            flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%;
-            margin-top: 7px; margin-right: 10px;
+            flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%;
+            margin-top: 7px; margin-right: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1);
         }
         .status-gray { background-color: var(--status-gray); }
         .status-yellow { background-color: var(--status-yellow); }
         .status-red { background-color: var(--status-red); box-shadow: 0 0 4px var(--status-red); }
         .status-green { background-color: var(--status-green); box-shadow: 0 0 4px var(--status-green); }
-        .l2-text { font-size: 1rem; color: var(--text-sub); flex-grow: 1; }
+        .l2-text { font-size: 0.95rem; color: var(--text-sub); flex-grow: 1; }
         
         .note-btn {
-            flex-shrink: 0; cursor: pointer; margin-left: 8px; margin-top: 4px;
-            color: #888; font-size: 1.1rem; opacity: 0.6; border: none; background: none; padding: 0;
+            flex-shrink: 0; cursor: pointer; margin-left: 6px; margin-top: 3px;
+            color: #888; font-size: 1rem; opacity: 0.6; border: none; background: none; padding: 0;
         }
         .note-btn.has-note { color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite; }
         @keyframes pulse-note { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
-        /* 連結按鈕 (雲朵) */
         .link-btn {
-            flex-shrink: 0; cursor: pointer; margin-left: 5px; margin-top: 4px;
-            font-size: 1.2rem; text-decoration: none; color: #5bc0de;
+            flex-shrink: 0; cursor: pointer; margin-left: 4px; margin-top: 3px;
+            font-size: 1.1rem; text-decoration: none; color: #5bc0de;
             opacity: 0.7; transition: all 0.2s; display: inline-block;
         }
         .link-btn:hover { opacity: 1; transform: scale(1.2); color: #17a2b8; }
