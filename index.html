@@ -10,6 +10,7 @@
             --bg-left: #cfe2ff;  
             --bg-right: #d1e7dd; 
             
+            /* ★★★ 深色標題區 (文字將對應此顏色) ★★★ */
             --header-left: #0056b3; 
             --header-right: #155724; 
             
@@ -153,7 +154,6 @@
             margin: 0 15px;
         }
 
-        /* 年份圓環與標籤 */
         .year-circle-wrapper {
             position: relative; width: 65px; height: 65px;
             display: flex; justify-content: center; align-items: center;
@@ -167,7 +167,7 @@
             box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
         }
 
-        /* ★★★ 新增：年份上下方的單位標籤 ★★★ */
+        /* ★★★ 修正：文字顏色改為對應深色變數 ★★★ */
         .year-label {
             position: absolute;
             left: 50%;
@@ -177,15 +177,15 @@
             white-space: nowrap;
             z-index: 10;
             letter-spacing: 1px;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.8); /* 增加白邊讓文字在任何背景都清楚 */
+            text-shadow: 0 1px 2px rgba(255,255,255,0.8);
         }
         .year-label-top {
-            top: 190px; /* 位於圓圈上方 */
-            color: #3498db; /* 亮藍色 (雲行) */
+            top: 190px;
+            color: var(--header-left); /* 深藍色 #0056b3 */
         }
         .year-label-bottom {
-            bottom: 190px; /* 位於圓圈下方 */
-            color: #2ecc71; /* 亮綠色 (竹銘) */
+            bottom: 190px;
+            color: var(--header-right); /* 深綠色 #155724 */
         }
 
         .fb-date {
@@ -697,10 +697,9 @@
                 
                 const gradientStyle = getYearProgressGradient(yearStats[fullYear]);
                 
-                // ★★★ 加入年份上下方的標籤 ★★★
                 yearNode.innerHTML = `
                     <div class="year-label year-label-top">雲行至善</div>
-                    <div class="year-circle-wrapper" style="background: ${gradientStyle};" title="年度進度總覽">
+                    <div class="year-circle-wrapper" style="background: ${gradientStyle};" title="年度進度總覽: 灰(未開始), 黃(討論), 紅(進行), 綠(完成)">
                         <div class="year-circle-inner">${fullYear}</div>
                     </div>
                     <div class="year-label year-label-bottom">竹銘醫院</div>
