@@ -59,19 +59,21 @@
             background: linear-gradient(90deg, var(--bg-left) 50%, var(--bg-right) 50%);
         }
 
-        /* 標題區 (極致壓縮版) */
+        /* 標題區 (高度壓縮版) */
         header.main-title {
             background: #fff;
             text-align: center;
-            padding: 0.6rem 1rem 0.4rem; /* 上下 padding 極小化 */
+            /* 修改：減少 Padding */
+            padding: 1rem 1rem 0.5rem; 
             border-bottom: 1px solid #ccc;
             position: relative;
             z-index: 10;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         header.main-title h1 { 
-            font-size: 1.4rem; /* 字體適中 */
-            margin-bottom: 0.2rem; 
+            /* 修改：字體縮小，Margin 減少 */
+            font-size: 1.5rem; 
+            margin-bottom: 0.5rem; 
             color: #333; 
         }
 
@@ -82,8 +84,9 @@
             align-items: center;
             flex-wrap: wrap; 
             gap: 15px; 
-            font-size: 0.8rem;
+            font-size: 0.85rem; 
             color: #555;
+            /* 修改：減少上方距離 */
             margin-top: 0;
         }
 
@@ -94,7 +97,10 @@
         }
         
         .legend-separator {
-            width: 1px; height: 12px; background-color: #ccc; margin: 0 5px;
+            width: 1px;
+            height: 14px;
+            background-color: #ccc;
+            margin: 0 5px;
         }
 
         /* =========================================
@@ -103,38 +109,39 @@
         .summary-wrapper {
             background: #fff; width: 100%; border-bottom: 1px solid #ccc;
             position: relative; z-index: 9; transition: all 0.3s ease; overflow: hidden;
+            /* 修改：減少最大高度限制，避免佔位 */
+            max-height: 70vh; 
         }
         
         .summary-toggle-bar {
             text-align: center; background: #f8f9fa;
             border-top: 1px solid #eee; border-bottom: 1px solid #ddd;
-            padding: 2px 0; /* 極細 */
-            cursor: pointer; color: #666;
-            font-size: 0.75rem; font-weight: bold; user-select: none;
+            padding: 5px 0; cursor: pointer; color: #666;
+            font-size: 0.8rem; font-weight: bold; user-select: none;
         }
         .summary-toggle-bar:hover { background: #e9ecef; color: #333; }
         .summary-wrapper.collapsed .summary-content { height: 0; padding: 0; opacity: 0; }
         
         .summary-content {
-            /* 上下留白極小化，把下方標題拉上來 */
-            padding: 5px 0 5px; 
+            /* 修改：大幅減少下方 Padding (60px -> 10px)，讓藍綠區塊浮上來 */
+            padding: 10px 0 10px; 
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: thin; scrollbar-color: #aaa #f1f1f1;
             height: auto; opacity: 1; transition: height 0.3s, opacity 0.3s;
         }
-        .summary-content::-webkit-scrollbar { height: 6px; } /* 捲軸變細 */
+        .summary-content::-webkit-scrollbar { height: 8px; }
         .summary-content::-webkit-scrollbar-track { background: #f1f1f1; }
         .summary-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
 
         .fishbone-chart {
             display: inline-flex; align-items: center;
             position: relative; min-width: 100%;
-            padding: 0 20px; 
+            padding: 0 40px; 
         }
         
         .fishbone-chart::before {
-            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 3px;
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 4px;
             background: var(--timeline-line); z-index: 0; border-radius: 2px;
         }
 
@@ -142,37 +149,35 @@
             display: inline-flex; flex-direction: column;
             align-items: center; justify-content: center;
             position: relative; 
-            margin: 0 3px; 
-            min-width: 50px; 
-            /* ★★★ 關鍵修改：高度壓縮至 400px ★★★ */
-            height: 400px; 
+            margin: 0 5px; 
+            min-width: 60px; 
+            /* 修改：縮減整體高度 (580px -> 530px) */
+            height: 530px; 
             vertical-align: middle;
             transition: min-width 0.3s ease;
         }
 
         .fb-node.year-marker {
-            min-width: 60px;
-            margin: 0 10px;
+            min-width: 100px;
+            margin: 0 20px;
         }
         .year-circle {
             background: #333; color: #fff;
-            width: 50px; height: 50px;
+            width: 70px; height: 70px;
             border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-weight: bold; font-size: 1rem;
-            z-index: 5; border: 3px solid #fff;
+            font-weight: bold; font-size: 1.2rem;
+            z-index: 5; border: 4px solid #fff;
             box-shadow: 0 0 0 2px #ccc;
         }
 
         .fb-date {
             background: #4a5568; color: #fff;
-            padding: 1px 6px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
+            padding: 2px 8px; border-radius: 12px;
+            font-size: 0.8rem; font-weight: bold;
             z-index: 2; position: absolute;
             top: 50%; left: 50%; transform: translate(-50%, -50%);
-            box-shadow: 0 0 0 2px #fff;
+            box-shadow: 0 0 0 3px #fff;
             transition: all 0.3s ease;
         }
         
@@ -181,23 +186,22 @@
             color: var(--highlight-text);
             border: 2px solid var(--highlight-border);
             z-index: 6; 
-            box-shadow: 0 0 0 2px #fff, 0 0 6px rgba(255, 235, 59, 0.5);
+            box-shadow: 0 0 0 3px #fff, 0 0 10px rgba(255, 235, 59, 0.5);
         }
 
         .fb-card {
             border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 6px; padding: 6px 4px;
+            border-radius: 6px; padding: 10px 6px;
             text-align: center;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
-            width: 44px; 
-            /* ★★★ 關鍵修改：卡片高度壓縮至 155px ★★★ */
-            height: 155px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 50px; 
+            height: 240px; 
             display: flex; flex-direction: column; justify-content: space-between; align-items: center;
             position: relative; z-index: 3;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .fb-card:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 10; }
+        .fb-card:hover { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; }
 
         .fb-top .fb-card { background-color: var(--bg-left); border-top: 3px solid var(--header-left); }
         .fb-bottom .fb-card { background-color: var(--bg-right); border-bottom: 3px solid var(--header-right); }
@@ -206,40 +210,39 @@
             position: absolute; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center;
         }
-        /* ★★★ 關鍵修改：Padding 縮減至 10px ★★★ */
-        .fb-top { bottom: 50%; padding-bottom: 10px; justify-content: flex-end; }
-        .fb-bottom { top: 50%; padding-top: 10px; justify-content: flex-start; }
+        /* 修改：縮短連接線 Padding (40px -> 20px) */
+        .fb-top { bottom: 50%; padding-bottom: 20px; justify-content: flex-end; }
+        .fb-bottom { top: 50%; padding-top: 20px; justify-content: flex-start; }
         
-        /* ★★★ 關鍵修改：連接線縮減至 10px ★★★ */
-        .fb-top::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 10px; background: var(--timeline-line); }
-        .fb-bottom::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 10px; background: var(--timeline-line); }
+        /* 修改：縮短連接線高度 (40px -> 20px) */
+        .fb-top::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 20px; background: var(--timeline-line); }
+        .fb-bottom::after { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: var(--timeline-line); }
 
         .fb-title {
-            font-size: 0.8rem; font-weight: bold; color: #333;
-            writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 1px;
-            text-align: left; margin-top: 4px; 
-            max-height: 135px; /* 配合新卡片高度 */
+            font-size: 0.9rem; font-weight: bold; color: #333;
+            writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 2px;
+            text-align: left; margin-top: 5px; max-height: 220px; 
         }
 
         .fb-dots {
-            display: flex; flex-direction: column; gap: 2px; align-items: center; margin-bottom: 3px; 
+            display: flex; flex-direction: column; gap: 4px; align-items: center; margin-bottom: 5px; 
         }
         .mini-dot {
-            width: 5px; height: 5px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2);
+            width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2);
         }
 
         #backToTop {
             position: fixed; bottom: 30px; right: 30px;
-            width: 40px; height: 40px;
+            width: 50px; height: 50px;
             background: #333; color: white;
             border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            font-size: 1.2rem; cursor: pointer;
+            font-size: 1.5rem; cursor: pointer;
             opacity: 0.7; transition: 0.3s; z-index: 1000;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: none; 
         }
-        #backToTop:hover { opacity: 1; transform: translateY(-3px); }
+        #backToTop:hover { opacity: 1; transform: translateY(-5px); }
 
         /* =========================================
            下方詳細時間軸 CSS
@@ -249,8 +252,7 @@
             display: flex; width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
         }
         .header-col {
-            width: 50%; padding: 12px 0;
-            text-align: center;
+            width: 50%; padding: 15px 0; text-align: center;
             font-weight: bold; font-size: 1.1rem; color: white;
         }
         .header-col.left { background-color: var(--header-left); }
@@ -258,7 +260,7 @@
 
         .timeline-container {
             position: relative; max-width: 1200px; margin: 0 auto;
-            padding: 30px 20px 80px; min-height: 50vh;
+            padding: 40px 20px 100px; min-height: 50vh;
         }
         .timeline-container::after {
             content: ''; position: absolute; width: 4px;
@@ -266,25 +268,23 @@
             top: 0; bottom: 0; left: 50%; margin-left: -2px; z-index: 0;
         }
         .timeline-row {
-            position: relative; margin-bottom: 40px; width: 100%;
+            position: relative; margin-bottom: 50px; width: 100%;
             opacity: 0; transform: translateY(30px); transition: all 0.6s ease-out;
             z-index: 1; display: flex; flex-direction: column; align-items: center;
-            scroll-margin-top: 150px; 
+            scroll-margin-top: 180px; 
         }
         .timeline-row.visible { opacity: 1; transform: translateY(0); }
 
         .date-badge {
-            width: 120px; background: #4a5568; color: white;
-            padding: 4px 0; text-align: center; border-radius: 20px;
+            width: 130px; background: #4a5568; color: white;
+            padding: 5px 0; text-align: center; border-radius: 20px;
             font-weight: bold; position: relative; z-index: 5;
             box-shadow: 0 0 0 4px rgba(255,255,255,0.8); margin-bottom: 5px;
-            font-size: 0.95rem;
         }
-
         .important-event-mini {
             background-color: var(--event-bg); color: var(--event-text);
-            border: 1px solid var(--event-border); padding: 5px 20px;
-            border-radius: 50px; font-size: 0.9rem; margin-bottom: 20px;
+            border: 1px solid var(--event-border); padding: 6px 20px;
+            border-radius: 50px; font-size: 0.95rem; margin-bottom: 20px;
             z-index: 5; text-align: center; max-width: 85%; font-weight: bold;
             display: inline-block;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -297,10 +297,9 @@
         .merged-title-container { width: 100%; display: flex; justify-content: center; margin-bottom: 10px; position: relative; z-index: 2; }
         .merged-title {
             background: white; border: 2px solid var(--header-left);
-            color: var(--header-left); padding: 6px 20px;
+            color: var(--header-left); padding: 8px 25px;
             border-radius: 50px; font-weight: bold;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            font-size: 1rem;
         }
         .highlight-style {
             background-color: var(--highlight-bg) !important; 
@@ -309,13 +308,13 @@
             transform: scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
         .task-card {
-            background: var(--card-bg); border-radius: 10px; padding: 12px;
+            background: var(--card-bg); border-radius: 10px; padding: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 10px;
             border: 1px solid rgba(0,0,0,0.05); position: relative; 
         }
         .l1-title {
-            font-size: 1rem; font-weight: bold; margin-bottom: 6px;
-            padding-bottom: 6px; border-bottom: 1px solid #eee;
+            font-size: 1.1rem; font-weight: bold; margin-bottom: 8px;
+            padding-bottom: 8px; border-bottom: 1px solid #eee;
             display: block; width: 100%; text-align: center;
         }
         .col-block.left .l1-title { color: var(--header-left); }
@@ -326,30 +325,30 @@
         }
 
         /* 內容細項 */
-        .l2-container { display: flex; flex-direction: column; gap: 6px; }
-        .l2-row-item { display: flex; align-items: flex-start; position: relative; line-height: 1.5; }
+        .l2-container { display: flex; flex-direction: column; gap: 8px; }
+        .l2-row-item { display: flex; align-items: flex-start; position: relative; line-height: 1.6; }
         .status-dot {
-            flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%;
-            margin-top: 7px; margin-right: 8px;
+            flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%;
+            margin-top: 7px; margin-right: 10px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1);
         }
         .status-gray { background-color: var(--status-gray); }
         .status-yellow { background-color: var(--status-yellow); }
         .status-red { background-color: var(--status-red); box-shadow: 0 0 4px var(--status-red); }
         .status-green { background-color: var(--status-green); box-shadow: 0 0 4px var(--status-green); }
-        .l2-text { font-size: 0.95rem; color: var(--text-sub); flex-grow: 1; }
+        .l2-text { font-size: 1rem; color: var(--text-sub); flex-grow: 1; }
         
         .note-btn {
-            flex-shrink: 0; cursor: pointer; margin-left: 6px; margin-top: 3px;
-            color: #888; font-size: 1rem; opacity: 0.6; border: none; background: none; padding: 0;
+            flex-shrink: 0; cursor: pointer; margin-left: 8px; margin-top: 4px;
+            color: #888; font-size: 1.1rem; opacity: 0.6; border: none; background: none; padding: 0;
         }
         .note-btn.has-note { color: #0d6efd; opacity: 1; animation: pulse-note 2s infinite; }
         @keyframes pulse-note { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         
         /* 連結按鈕 (雲朵) */
         .link-btn {
-            flex-shrink: 0; cursor: pointer; margin-left: 4px; margin-top: 3px;
-            font-size: 1.1rem; text-decoration: none; color: #5bc0de;
+            flex-shrink: 0; cursor: pointer; margin-left: 5px; margin-top: 4px;
+            font-size: 1.2rem; text-decoration: none; color: #5bc0de;
             opacity: 0.7; transition: all 0.2s; display: inline-block;
         }
         .link-btn:hover { opacity: 1; transform: scale(1.2); color: #17a2b8; }
