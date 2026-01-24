@@ -75,48 +75,30 @@
             color: #333; 
         }
 
-        /* --- 狀態圖例區塊 --- */
-        .legend-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
+        /* --- 狀態圖例區塊 (單行整合版) --- */
         .status-legend {
-            display: flex; justify-content: center; align-items: center;
-            flex-wrap: wrap; gap: 15px; font-size: 0.85rem; color: #555;
-        }
-        
-        .action-legend {
-            display: flex; justify-content: center; align-items: center;
-            flex-wrap: wrap; gap: 15px; font-size: 0.85rem; color: #666;
-            padding-top: 5px;
-            border-top: 1px dashed #eee; /* 分隔線 */
-            width: 80%;
-            max-width: 600px;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            flex-wrap: wrap; 
+            gap: 20px; /* 項目間距 */
+            font-size: 0.85rem; 
+            color: #555;
+            margin-top: 5px;
         }
 
-        .legend-item { display: flex; align-items: center; }
+        .legend-item { display: flex; align-items: center; white-space: nowrap; }
         .legend-dot {
             width: 10px; height: 10px; border-radius: 50%;
             margin-right: 6px; display: inline-block;
         }
         
-        /* 互動提示文字 */
-        .interaction-hint {
-            font-size: 0.8rem;
-            color: #999;
-            margin-left: 10px;
-            font-weight: normal;
-            display: flex;
-            align-items: center;
-        }
-        .interaction-hint::before {
-            content: '💡';
-            margin-right: 4px;
-            font-size: 0.9rem;
+        /* 分隔線 (用於區分燈號與功能圖示) */
+        .legend-separator {
+            width: 1px;
+            height: 14px;
+            background-color: #ccc;
+            margin: 0 5px;
         }
 
         /* =========================================
@@ -211,7 +193,7 @@
             height: 240px; 
             display: flex; flex-direction: column; justify-content: space-between; align-items: center;
             position: relative; z-index: 3;
-            cursor: pointer; /* 讓滑鼠變手指 */
+            cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .fb-card:hover { transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 10; }
@@ -293,16 +275,13 @@
             box-shadow: 0 0 0 4px rgba(255,255,255,0.8); margin-bottom: 5px;
         }
 
-        /* ★★★ 重要事件 - 膠囊風格 (Capsule Style) ★★★ */
+        /* 重要事件 - 膠囊風格 */
         .important-event-mini {
             background-color: var(--event-bg); 
             color: var(--event-text);
             border: 1px solid var(--event-border); 
-            
-            /* 膠囊化關鍵：左右 padding 加大，圓角設為 50px */
             padding: 6px 20px;
             border-radius: 50px;
-            
             font-size: 0.95rem; 
             margin-bottom: 20px;
             z-index: 5; 
@@ -310,7 +289,7 @@
             max-width: 85%; 
             font-weight: bold;
             display: inline-block;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* 輕微陰影增加層次 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .important-event-mini::before { content: '🔔 '; }
 
@@ -401,7 +380,6 @@
             .merged-title-container { justify-content: flex-start; }
             .highlight-style { transform: none; width: calc(100% - 35px); }
             .status-legend { flex-wrap: wrap; gap: 10px; padding: 0 10px; }
-            .action-legend { width: 95%; gap: 10px; }
             
             .summary-content::after {
                 content: '← 左右滑動查看更多 →'; display: block; text-align: center; color: #999; font-size: 0.8rem; margin-top: 10px; width: 100%;
@@ -421,19 +399,16 @@
 <header class="main-title" id="topHeader">
     <h1>竹銘醫院資訊系統時程規劃</h1>
     
-    <div class="legend-container">
-        <div class="status-legend">
-            <div class="legend-item"><span class="legend-dot status-gray"></span>尚未開始</div>
-            <div class="legend-item"><span class="legend-dot status-yellow"></span>討論分析</div>
-            <div class="legend-item"><span class="legend-dot status-red"></span>開始進行</div>
-            <div class="legend-item"><span class="legend-dot status-green"></span>如期完成</div>
-        </div>
+    <div class="status-legend">
+        <div class="legend-item"><span class="legend-dot status-gray"></span>尚未開始</div>
+        <div class="legend-item"><span class="legend-dot status-yellow"></span>討論分析</div>
+        <div class="legend-item"><span class="legend-dot status-red"></span>開始進行</div>
+        <div class="legend-item"><span class="legend-dot status-green"></span>如期完成</div>
         
-        <div class="action-legend">
-            <div class="legend-item">📝 說明</div>
-            <div class="legend-item">☁️ 連結</div>
-            <div class="interaction-hint">(點擊總覽燈號可跳轉)</div>
-        </div>
+        <div class="legend-separator"></div>
+        
+        <div class="legend-item">📝 說明</div>
+        <div class="legend-item">☁️ 連結</div>
     </div>
 </header>
 
