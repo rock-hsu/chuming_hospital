@@ -10,9 +10,9 @@
             --bg-left: #cfe2ff;  
             --bg-right: #d1e7dd; 
             
-            /* ★★★ 深色標題區 (文字將對應此顏色) ★★★ */
+            /* ★★★ 修正：將綠色統一為 #28a745 (與底部標題一致) ★★★ */
             --header-left: #0056b3; 
-            --header-right: #155724; 
+            --header-right: #28a745; 
             
             --timeline-line: #aab2bd;
             --card-bg: #ffffff;
@@ -167,7 +167,6 @@
             box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
         }
 
-        /* ★★★ 修正：文字顏色改為對應深色變數 ★★★ */
         .year-label {
             position: absolute;
             left: 50%;
@@ -181,11 +180,11 @@
         }
         .year-label-top {
             top: 190px;
-            color: var(--header-left); /* 深藍色 #0056b3 */
+            color: var(--header-left); /* 深藍色 */
         }
         .year-label-bottom {
             bottom: 190px;
-            color: var(--header-right); /* 深綠色 #155724 */
+            color: var(--header-right); /* ★ 修正後的綠色 ★ */
         }
 
         .fb-date {
@@ -273,8 +272,9 @@
             width: 50%; padding: 12px 0; text-align: center;
             font-weight: bold; font-size: 1.1rem; color: white;
         }
+        /* ★★★ 修正：使用 CSS 變數，確保顏色一致 ★★★ */
         .header-col.left { background-color: var(--header-left); }
-        .header-col.right { background-color: #28a745; }
+        .header-col.right { background-color: var(--header-right); }
 
         .timeline-container {
             position: relative; max-width: 1200px; margin: 0 auto;
@@ -665,6 +665,7 @@
         return 'status-gray';
     }
 
+    // V2.0 魔法代碼翻譯機
     function parseRichText(text) {
         if (!text) return "";
         let formatted = text;
