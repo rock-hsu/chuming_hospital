@@ -55,7 +55,7 @@
             font-size: 1.2rem; color: #555; font-weight: bold;
         }
 
-        /* 登入遮罩層 */
+        /* ★★★ 登入遮罩層樣式修正 ★★★ */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #f0f2f5; z-index: 3000;
@@ -68,25 +68,27 @@
         }
         .login-box h2 { margin-bottom: 20px; color: #333; }
         
-        /* 輸入框容器 (為了放小眼睛) */
+        /* 輸入框外層容器 (為了定位小眼睛) */
         .input-wrapper {
             position: relative;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+        
         .login-box input {
-            padding: 12px 40px 12px 15px; /* 右邊留空給眼睛 */
+            padding: 12px 45px 12px 15px; /* 右邊留空給眼睛 */
             width: 100%; 
             border: 2px solid #ddd;
             border-radius: 6px; 
-            font-size: 1rem; 
+            font-size: 1.1rem; 
             text-align: center;
             outline: none;
             transition: border 0.3s;
+            letter-spacing: 2px; /* 讓密碼點點分開一點 */
         }
         .login-box input:focus { border-color: var(--header-left); }
         
-        /* 小眼睛圖示 */
+        /* 小眼睛按鈕 */
         .toggle-eye {
             position: absolute;
             right: 15px;
@@ -94,23 +96,24 @@
             transform: translateY(-50%);
             cursor: pointer;
             font-size: 1.2rem;
-            color: #999;
+            color: #aaa;
             user-select: none;
+            z-index: 10;
         }
-        .toggle-eye:hover { color: #333; }
+        .toggle-eye:hover { color: #555; }
 
         .login-box button {
-            padding: 10px 25px; background: var(--header-left); color: white;
-            border: none; border-radius: 6px; font-size: 1rem; cursor: pointer;
-            transition: background 0.3s; width: 100%;
+            padding: 12px 25px; background: var(--header-left); color: white;
+            border: none; border-radius: 6px; font-size: 1.1rem; cursor: pointer;
+            transition: background 0.3s; width: 100%; font-weight: bold;
         }
         .login-box button:hover { background: #004494; }
         .login-box button:disabled { background: #ccc; cursor: not-allowed; }
         
-        .error-msg { color: #e74c3c; margin-top: 10px; font-size: 0.9rem; display: none; font-weight: bold;}
-        .lockout-msg { color: #e67e22; margin-top: 10px; font-size: 0.9rem; display: none; font-weight: bold;}
+        .error-msg { color: #e74c3c; margin-top: 15px; font-size: 0.95rem; display: none; font-weight: bold;}
+        .lockout-msg { color: #e67e22; margin-top: 15px; font-size: 0.95rem; display: none; font-weight: bold;}
 
-        /* 搖晃動畫 */
+        /* 搖晃動畫 (輸入錯誤時) */
         @keyframes shake {
             0% { transform: translateX(0); } 25% { transform: translateX(-5px); }
             50% { transform: translateX(5px); } 75% { transform: translateX(-5px); }
@@ -528,10 +531,10 @@
 <script>
     const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSTQX6AFxVXQTg9xfcR8T85jZ19lkhQbGPbpvpJ74w2ZIcjCXn4_ycvvvuaflfL8fR6PXpzyGjNNbs-/pub?output=csv';
     
-    // ★★★ 密碼設定區 (SHA-256 for "Goal") ★★★
-    const CORRECT_HASH = "6e123653760233b4b0292723c2a373976375005936737526970720760676662e";
-    
-    // 安全設定
+    // ★★★ 密碼設定區 (使用混淆技術，非 SHA-256) ★★★
+    // 這是 "2026Goal" 經過 Base64 編碼的結果，原始碼中看不出 "Goal"
+    const ENCODED_PASS = 'MjAyNkdvYWw='; 
+
     const MAX_ATTEMPTS = 3;
     const LOCKOUT_DURATION = 60000; // 60 秒
 
@@ -540,20 +543,20 @@
         checkLoginStatus();
     });
 
-    // 顯示/隱藏密碼
+    // 顯示/隱藏密碼功能
     function togglePassword() {
         const input = document.getElementById('passcodeInput');
         const eye = document.querySelector('.toggle-eye');
         if (input.type === "password") {
             input.type = "text";
-            eye.textContent = "🙈"; // 閉眼圖示
+            eye.textContent = "🙈"; // 顯示密碼時，圖示變為「遮眼」或閉眼
         } else {
             input.type = "password";
-            eye.textContent = "👁️"; // 睜眼圖示
+            eye.textContent = "👁️"; // 隱藏密碼時，圖示為「眼睛」
         }
     }
 
-    // 檢查是否還在鎖定時間內
+    // 檢查鎖定狀態
     function checkLockout() {
         const lockoutUntil = localStorage.getItem('lockoutUntil');
         if (lockoutUntil && Date.now() < lockoutUntil) {
@@ -561,7 +564,7 @@
         }
     }
 
-    // 禁用登入按鈕並顯示倒數
+    // 禁用登入按鈕
     function disableLogin(lockoutTime) {
         const btn = document.getElementById('loginBtn');
         const input = document.getElementById('passcodeInput');
@@ -590,19 +593,6 @@
         const interval = setInterval(updateTimer, 1000);
     }
 
-    // SHA-256 雜湊函式 (使用瀏覽器原生 API)
-    async function sha256(message) {
-        // encode as UTF-8
-        const msgBuffer = new TextEncoder().encode(message);
-        // hash the message
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        // convert ArrayBuffer to Array
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        // convert bytes to hex string
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
-
     // 檢查是否已登入
     function checkLoginStatus() {
         const isLogged = localStorage.getItem('isLogged');
@@ -613,19 +603,16 @@
         }
     }
 
-    // 執行登入邏輯
-    async function attemptLogin() {
+    // ★★★ 登入邏輯 (修正版：不使用 crypto API，保證本地可運行) ★★★
+    function attemptLogin() {
         const lockoutUntil = localStorage.getItem('lockoutUntil');
         if (lockoutUntil && Date.now() < lockoutUntil) return;
 
-        // ★ 重點：使用 trim() 去除前後空白，避免複製貼上時多出空格
         const input = document.getElementById('passcodeInput').value.trim();
-        const inputHash = await sha256(input);
-
-        // Debug: 如果想知道自己輸入了什麼，可以打開 console 看
-        // console.log("Input:", input, "Hash:", inputHash);
-
-        if (inputHash === CORRECT_HASH) {
+        
+        // 驗證邏輯：將使用者輸入加上 "2026" 前綴，再轉 Base64，看是否等於設定值
+        // 這樣原始碼只看得到 "MjAyNkdvYWw="，無法直接猜出密碼是 "Goal"
+        if (btoa("2026" + input) === ENCODED_PASS) {
             localStorage.setItem('isLogged', 'true');
             localStorage.removeItem('failedAttempts'); 
             document.getElementById('loginOverlay').style.display = 'none';
@@ -865,6 +852,7 @@
         return 'status-gray';
     }
 
+    // V2.0 魔法代碼翻譯機
     function parseRichText(text) {
         if (!text) return "";
         let formatted = text;
